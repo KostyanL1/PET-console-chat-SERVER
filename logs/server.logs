@@ -16,3 +16,14 @@
 03:05:58.528 [Thread-0] INFO  org.legenkiy.server.service.impl.ServerService - SERVER WAS STARTED ON PORT 1010
 03:06:12.778 [Thread-1] INFO  org.legenkiy.server.connection.ConnectionsManager - NEW CONNECTION CREATED : ActiveConnection(id=1, connectedAt=2026-02-03T03:06:12.771247500, socket=/127.0.0.1:61104)
 03:06:18.648 [Thread-1] INFO  org.legenkiy.server.connection.ConnectionsManager - CONNECTION ActiveConnection(id=1, connectedAt=2026-02-03T03:06:12.771247500, socket=/127.0.0.1:61104) REMOVED
+19:55:14.756 [Thread-0] INFO  org.legenkiy.net.TcpServer - SERVER WAS STARTED ON PORT 1010
+19:55:46.006 [Thread-0] INFO  org.legenkiy.net.TcpServer - SERVER WAS STARTED ON PORT 1010
+19:56:08.745 [Thread-1] INFO  org.legenkiy.connection.ConnectionsManager - NEW CONNECTION CREATED : ActiveConnection(id=1, connectedAt=2026-02-03T19:56:08.739044200, socket=/127.0.0.1:49347)
+19:56:08.746 [Thread-1] INFO  org.legenkiy.net.TcpServer - CONNECTED Socket[addr=/127.0.0.1,port=49347,localport=1010]
+19:57:32.553 [Thread-0] INFO  org.legenkiy.net.TcpServer - SERVER WAS STARTED ON PORT 1010
+19:57:37.855 [Thread-1] INFO  org.legenkiy.connection.ConnectionsManager - NEW CONNECTION CREATED : ActiveConnection(id=1, connectedAt=2026-02-03T19:57:37.849128500, socket=/127.0.0.1:61249)
+19:57:37.855 [Thread-1] INFO  org.legenkiy.net.TcpServer - CONNECTED Socket[addr=/127.0.0.1,port=61249,localport=1010]
+19:58:24.759 [Thread-0] INFO  org.legenkiy.net.TcpServer - SERVER WAS STARTED ON PORT 1010
+19:58:32.624 [Thread-1] INFO  org.legenkiy.connection.ConnectionsManager - NEW CONNECTION CREATED : ActiveConnection(id=1, connectedAt=2026-02-03T19:58:32.618049600, socket=/127.0.0.1:54452)
+19:58:32.625 [Thread-1] INFO  org.legenkiy.net.TcpServer - CONNECTED Socket[addr=/127.0.0.1,port=54452,localport=1010]
+19:59:02.220 [Thread-2] INFO  org.legenkiy.connection.ConnectionsManager - CONNECTION ActiveConnection(id=1, connectedAt=2026-02-03T19:58:32.618049600, socket=/127.0.0.1:54452) REMOVED

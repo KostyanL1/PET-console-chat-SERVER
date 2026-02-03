@@ -1,4 +1,4 @@
-package org.legenkiy.server.connection;
+package org.legenkiy.connection;
 
 
 import org.apache.logging.log4j.LogManager;
