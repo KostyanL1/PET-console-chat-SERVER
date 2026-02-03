@@ -1,0 +1,18 @@
+01:55:29.309 [Thread-0] INFO  org.legenkiy.server.service.impl.ServerService - SERVER WAS STARTED ON PORT 1010
+01:55:37.301 [Thread-1] INFO  org.legenkiy.server.connection.ConnectionsManager - NEW CONNECTION CREATED : ActiveConnection(id=1, connectedAt=2026-02-03T01:55:37.294722400, socket=/127.0.0.1:63584)
+01:58:03.366 [Thread-0] INFO  org.legenkiy.server.service.impl.ServerService - SERVER WAS STARTED ON PORT 1010
+01:58:11.653 [Thread-1] INFO  org.legenkiy.server.connection.ConnectionsManager - NEW CONNECTION CREATED : ActiveConnection(id=1, connectedAt=2026-02-03T01:58:11.646101300, socket=/127.0.0.1:56366)
+01:58:25.523 [Thread-1] WARN  org.legenkiy.server.service.impl.ServerService - CONNECTION LOST WITH SOCKET /127.0.0.1:56366
+01:58:39.062 [Thread-2] INFO  org.legenkiy.server.connection.ConnectionsManager - NEW CONNECTION CREATED : ActiveConnection(id=2, connectedAt=2026-02-03T01:58:39.062988500, socket=/127.0.0.1:59352)
+02:41:42.174 [Thread-0] INFO  org.legenkiy.server.service.impl.ServerService - SERVER WAS STARTED ON PORT 1010
+02:41:46.646 [Thread-1] INFO  org.legenkiy.server.connection.ConnectionsManager - NEW CONNECTION CREATED : ActiveConnection(id=1, connectedAt=2026-02-03T02:41:46.640358400, socket=/127.0.0.1:63943)
+02:41:46.648 [Thread-1] WARN  org.legenkiy.server.service.impl.ServerService - CONNECTION LOST WITH SOCKET /127.0.0.1:63943
+02:46:33.588 [Thread-0] INFO  org.legenkiy.server.service.impl.ServerService - SERVER WAS STARTED ON PORT 1010
+02:46:44.814 [Thread-1] INFO  org.legenkiy.server.connection.ConnectionsManager - NEW CONNECTION CREATED : ActiveConnection(id=1, connectedAt=2026-02-03T02:46:44.808344200, socket=/127.0.0.1:60588)
+02:46:55.947 [Thread-1] WARN  org.legenkiy.server.service.impl.ServerService - CONNECTION LOST WITH SOCKET /127.0.0.1:60588
+02:52:31.184 [Thread-0] INFO  org.legenkiy.server.service.impl.ServerService - SERVER WAS STARTED ON PORT 1010
+02:52:39.085 [Thread-1] INFO  org.legenkiy.server.connection.ConnectionsManager - NEW CONNECTION CREATED : ActiveConnection(id=1, connectedAt=2026-02-03T02:52:39.077655200, socket=/127.0.0.1:54151)
+02:52:53.277 [Thread-1] INFO  org.legenkiy.server.connection.ConnectionsManager - CONNECTION ActiveConnection(id=1, connectedAt=2026-02-03T02:52:39.077655200, socket=/127.0.0.1:54151) REMOVED
+03:05:58.528 [Thread-0] INFO  org.legenkiy.server.service.impl.ServerService - SERVER WAS STARTED ON PORT 1010
+03:06:12.778 [Thread-1] INFO  org.legenkiy.server.connection.ConnectionsManager - NEW CONNECTION CREATED : ActiveConnection(id=1, connectedAt=2026-02-03T03:06:12.771247500, socket=/127.0.0.1:61104)
+03:06:18.648 [Thread-1] INFO  org.legenkiy.server.connection.ConnectionsManager - CONNECTION ActiveConnection(id=1, connectedAt=2026-02-03T03:06:12.771247500, socket=/127.0.0.1:61104) REMOVED

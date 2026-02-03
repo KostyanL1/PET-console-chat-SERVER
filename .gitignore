@@ -1,0 +1,5 @@
+.idea
+logs/.
+application-properties
+target
+.env
