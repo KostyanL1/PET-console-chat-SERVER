@@ -6,11 +6,13 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.legenkiy.models.User;
-import org.legenkiy.utils.HibernateSessionFactoryUtil;
+import org.legenkiy.configs.HibernateConfig;
+
 
 
 import java.util.List;
 import java.util.Optional;
+
 
 public class UserDao {
 
@@ -18,20 +20,20 @@ public class UserDao {
 
 
     public List<User> findAll() {
-        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()) {
+        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
             List<User> userList = session.createQuery("From User").list();
             return userList;
         }
     }
 
     public Optional<User> findById(Long id) {
-        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()) {
+        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
             return Optional.of(session.find(User.class, id));
         }
     }
 
     public Long save(User newUser) {
-        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()) {
+        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
             session.persist(newUser);
             transaction.commit();
@@ -43,7 +45,7 @@ public class UserDao {
     }
 
     public Long update(User updatedUser) {
-        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()) {
+        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
             User user = session.find(User.class, updatedUser.getId());
             user.setUsername(updatedUser.getUsername());
@@ -59,7 +61,7 @@ public class UserDao {
     }
 
     public Long delete(Long id){
-        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()){
+        try (Session session = HibernateConfig.getSessionFactory().openSession()){
             Transaction transaction = session.beginTransaction();
             User user = session.find(User.class, id);
             session.remove(user);
