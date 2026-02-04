@@ -3,3 +3,4 @@ logs/.
 application-properties
 target
 .env
+hibernate.cfg.xml
