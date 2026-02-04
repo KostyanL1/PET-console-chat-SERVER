@@ -3,9 +3,9 @@ package org.legenkiy.connection;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.legenkiy.exception.AlreadyConnectedException;
-import org.legenkiy.exception.ObjectNotFoundException;
-import org.legenkiy.model.ActiveConnection;
+import org.legenkiy.exceptions.AlreadyConnectedException;
+import org.legenkiy.exceptions.ObjectNotFoundException;
+import org.legenkiy.models.ActiveConnection;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 

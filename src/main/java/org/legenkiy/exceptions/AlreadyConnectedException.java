@@ -1,4 +1,4 @@
-package org.legenkiy.exception;
+package org.legenkiy.exceptions;
 
 public class AlreadyConnectedException extends RuntimeException {
     public AlreadyConnectedException(String message) {

@@ -1,10 +1,7 @@
 package org.legenkiy.net;
 
 
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.legenkiy.connection.ConnectionsManager;
-import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;

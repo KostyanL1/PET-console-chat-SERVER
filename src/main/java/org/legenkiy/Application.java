@@ -2,7 +2,7 @@ package org.legenkiy;
 
 
 
-import org.legenkiy.config.ApplicationConfig;
+import org.legenkiy.configs.ApplicationConfig;
 import org.legenkiy.net.TcpServer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
