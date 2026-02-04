@@ -1,4 +1,4 @@
-package org.legenkiy.exception;
+package org.legenkiy.exceptions;
 
 public class ConnectException extends RuntimeException {
     public ConnectException(String message) {

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.legenkiy.connection.ConnectionsManager;
-import org.legenkiy.model.ActiveConnection;
+import org.legenkiy.models.ActiveConnection;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;

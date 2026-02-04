@@ -1,4 +1,4 @@
-package org.legenkiy.model;
+package org.legenkiy.models;
 
 
 import lombok.*;

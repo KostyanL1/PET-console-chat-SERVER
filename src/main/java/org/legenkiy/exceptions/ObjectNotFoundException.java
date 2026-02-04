@@ -1,4 +1,4 @@
-package org.legenkiy.exception;
+package org.legenkiy.exceptions;
 
 public class ObjectNotFoundException extends RuntimeException{
     public ObjectNotFoundException(String message){

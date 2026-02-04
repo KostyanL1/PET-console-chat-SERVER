@@ -1,0 +1,35 @@
+<hibernate-configuration xmlns="http://www.hibernate.org/xsd/hibernate-configuration">
+    <session-factory>
+
+<!--db cfg-->
+        <property name="hibernate.connection.driver_class">
+            org.postgresql.Driver
+        </property>
+        <property name="hibernate.connection.url">
+            
+        </property>
+        <property name="hibernate.connection.username">
+
+        </property>
+        <property name="hibernate.connection.password">
+
+        </property>
+        <property name="hibernate.hbm2ddl.auto">
+            update
+        </property>
+
+<!--dialect-->
+        <property name="hibernate.dialect">
+            org.hibernate.dialect.PostgreSQLDialect
+        </property>
+
+<!--show db request in sout-->
+        <property name="hibernate.show_sql">
+            true
+        </property>
+        <property name="hibernate.format_sql">
+            true
+        </property>
+
+    </session-factory>
+</hibernate-configuration>
