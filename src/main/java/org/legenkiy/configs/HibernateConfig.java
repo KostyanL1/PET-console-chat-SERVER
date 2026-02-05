@@ -1,8 +1,6 @@
 package org.legenkiy.configs;
 
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
@@ -14,8 +12,6 @@ import org.legenkiy.models.User;
 import org.springframework.context.annotation.Bean;
 
 
-@AllArgsConstructor
-@NoArgsConstructor
 @org.springframework.context.annotation.Configuration
 public class HibernateConfig {
 
@@ -34,7 +30,7 @@ public class HibernateConfig {
             sessionFactory = configuration.buildSessionFactory(standardServiceRegistryBuilder.build());
             LOGGER.info("SESSION FACTORY SUCCESSFULLY BUILT");
         } catch (Exception e) {
-            LOGGER.info("SESSION FACTORY SUCCESSFULLY BUILDING FAILED");
+            LOGGER.info("SESSION FACTORY BUILDING FAILED");
             throw new RuntimeException(e);
         }
         return sessionFactory;

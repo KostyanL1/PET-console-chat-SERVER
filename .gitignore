@@ -1,5 +1,5 @@
 .idea
-logs/.
+logs/server.log
 application-properties
 target
 .env

@@ -16,7 +16,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class   UserDao {
+public class UserDao {
 
     private static final Logger LOGGER = LogManager.getLogger();
     private final SessionFactory sessionFactory;
@@ -58,11 +58,11 @@ public class   UserDao {
             if (updatedUser.getPassword() != null) {
                 user.setPassword(updatedUser.getPassword());
             }
-            if (updatedUser.getChats() != null ){
+            if (updatedUser.getChats() != null) {
                 user.setPassword(updatedUser.getPassword());
             }
             transaction.commit();
-        }catch (Exception e){
+        } catch (Exception e) {
             transaction.rollback();
             LOGGER.info("FAILED TO UPDATE USER WITH ID {}", updatedUser.getId());
             throw new RuntimeException("FAILED TO UPDATE USER");
@@ -70,14 +70,14 @@ public class   UserDao {
         return updatedUser.getId();
     }
 
-    public void delete(Long id){
+    public void delete(Long id) {
         Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()){
+        try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             User user = session.find(User.class, id);
             session.remove(user);
             transaction.commit();
-        }catch (Exception e){
+        } catch (Exception e) {
             LOGGER.info("DELETE USER FAILED id {}, {}", id, e);
             transaction.rollback();
         }

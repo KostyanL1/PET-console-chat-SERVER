@@ -53,7 +53,7 @@ public class ConnectionsManager {
         );
     }
 
-    private synchronized ActiveConnection findConnectionBySocket(Socket socket){
+    private synchronized ActiveConnection findConnectionBySocket(Socket socket) {
         String clientSocket = socket.getInetAddress() + ":" + socket.getPort();
         return this.activeConnectionList.stream().filter(connection ->
                 connection.getSocket().equals(clientSocket)).findFirst().orElseThrow(
