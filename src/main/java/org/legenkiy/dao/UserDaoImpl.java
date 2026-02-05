@@ -7,73 +7,85 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.legenkiy.models.Chat;
+import org.legenkiy.models.User;
 import org.springframework.stereotype.Component;
+
 
 import java.util.List;
 import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class ChatDao {
+public class UserDaoImpl implements org.legenkiy.api.dao.UserDao {
 
-    private static final Logger LOGGER = LogManager.getLogger(ChatDao.class);
+    private static final Logger LOGGER = LogManager.getLogger();
     private final SessionFactory sessionFactory;
 
-    public List<Chat> findAll() {
+    @Override
+    public List<User> findAll() {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("FROM Chat").list();
+            List<User> userList = session.createQuery("From User").list();
+            return userList;
         }
     }
 
-    public Optional<Chat> findById(Long id) {
+    @Override
+    public Optional<User> findById(Long id) {
         try (Session session = sessionFactory.openSession()) {
-            return Optional.of(session.find(Chat.class, id));
+            return Optional.of(session.find(User.class, id));
         }
     }
 
-    public Long save(Chat newChat) {
+    @Override
+    public Long save(User newUser) {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
-            session.persist(newChat);
+            session.persist(newUser);
             transaction.commit();
-            return newChat.getId();
+            return newUser.getId();
         } catch (Exception e) {
-            LOGGER.info("SAVE FAILED {}, {}", newChat, e);
+            LOGGER.info(e);
             transaction.rollback();
             return null;
         }
     }
 
-    public Long update(Chat updatedChat) {
+    @Override
+    public Long update(User updatedUser) {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
-            Chat chat = session.find(Chat.class, updatedChat.getId());
-            chat.setMembers(updatedChat.getMembers());
+            transaction = session.beginTransaction();
+            User user = session.find(User.class, updatedUser.getId());
+            user.setUsername(updatedUser.getUsername());
+            if (updatedUser.getPassword() != null) {
+                user.setPassword(updatedUser.getPassword());
+            }
+            if (updatedUser.getChats() != null) {
+                user.setPassword(updatedUser.getPassword());
+            }
             transaction.commit();
-            return chat.getId();
         } catch (Exception e) {
-            LOGGER.info("UPDATE FAILED {}, {}", updatedChat, e);
             transaction.rollback();
-            return null;
+            LOGGER.info("FAILED TO UPDATE USER WITH ID {}", updatedUser.getId());
+            throw new RuntimeException("FAILED TO UPDATE USER");
         }
+        return updatedUser.getId();
     }
 
-
+    @Override
     public void delete(Long id) {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
-            Chat chat = session.find(Chat.class, id);
-            session.remove(chat);
+            User user = session.find(User.class, id);
+            session.remove(user);
             transaction.commit();
         } catch (Exception e) {
-            LOGGER.info("DELETE CHAT FAILED id {}, {}", id, e);
+            LOGGER.info("DELETE USER FAILED id {}, {}", id, e);
             transaction.rollback();
         }
-
     }
 
-
 }
+

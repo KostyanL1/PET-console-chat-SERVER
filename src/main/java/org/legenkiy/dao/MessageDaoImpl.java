@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.legenkiy.api.dao.MessageDao;
 import org.legenkiy.models.Chat;
 import org.legenkiy.models.Message;
 import org.springframework.stereotype.Component;
@@ -15,11 +16,12 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class MessageDao {
+public class MessageDaoImpl implements MessageDao {
 
-    private static final Logger LOGGER = LogManager.getLogger(MessageDao.class);
+    private static final Logger LOGGER = LogManager.getLogger(MessageDaoImpl.class);
     private final SessionFactory sessionFactory;
 
+    @Override
     public List<Message> findAllByChat(Chat chat) {
         try (Session session = sessionFactory.openSession()) {
             return session.createQuery("FROM Message m WHERE m.chat=:chat", Message.class)
@@ -28,6 +30,7 @@ public class MessageDao {
         }
     }
 
+    @Override
     public Long save(Message newMessage) {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
@@ -41,6 +44,7 @@ public class MessageDao {
         }
     }
 
+    @Override
     public Long update(Message updatedMessage) {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
@@ -55,6 +59,7 @@ public class MessageDao {
         }
     }
 
+    @Override
     public void delete(Long id) {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
