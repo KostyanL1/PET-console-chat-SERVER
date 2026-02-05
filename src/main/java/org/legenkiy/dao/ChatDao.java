@@ -8,11 +8,12 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.legenkiy.models.Chat;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 
-
+@Component
 @RequiredArgsConstructor
 public class ChatDao {
 
