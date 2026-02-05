@@ -1,5 +1,6 @@
 .idea
-logs/.
+logs/server.log
 application-properties
 target
 .env
+hibernate.cfg.xml

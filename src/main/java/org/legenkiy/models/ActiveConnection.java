@@ -11,11 +11,11 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 @Builder
-public class ActiveConnection{
+public class ActiveConnection {
 
-   private Long id;
-   private LocalDateTime connectedAt;
-   private String socket;
+    private Long id;
+    private LocalDateTime connectedAt;
+    private String socket;
 
 
 }

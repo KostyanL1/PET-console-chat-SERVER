@@ -10,7 +10,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 
-
 public class ClientHandler implements Runnable {
 
     private final Socket socket;
@@ -22,18 +21,17 @@ public class ClientHandler implements Runnable {
     }
 
 
-
     @Override
     public void run() {
-        try(
+        try (
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
                 PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true)
-        ){
+        ) {
             String message;
-            while (true){
-                if ((message = bufferedReader.readLine()) != null){
-                    switch (message){
-                        case "/exit" : {
+            while (true) {
+                if ((message = bufferedReader.readLine()) != null) {
+                    switch (message) {
+                        case "/exit": {
                             connectionsManager.removeConnection(socket);
                             return;
                         }
@@ -44,7 +42,7 @@ public class ClientHandler implements Runnable {
                 }
             }
 
-        }catch (IOException exception){
+        } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
     }

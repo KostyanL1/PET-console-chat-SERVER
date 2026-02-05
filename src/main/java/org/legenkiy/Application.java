@@ -1,7 +1,6 @@
 package org.legenkiy;
 
 
-
 import org.legenkiy.configs.ApplicationConfig;
 import org.legenkiy.net.TcpServer;
 import org.springframework.context.ApplicationContext;

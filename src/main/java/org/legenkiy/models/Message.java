@@ -20,10 +20,9 @@ public class Message {
     private Long id;
     @Column(name = "content")
     private String content;
-    @Column(name = "from")
-    private String from;
-    @Column(name = "to")
-    private String to;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "sender_id")
+    private User sender;
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "chat_id")
     private Chat chat;
