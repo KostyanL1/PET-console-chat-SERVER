@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 
 @Entity
 @Table(name = "users")
@@ -24,5 +26,8 @@ public class User {
     private String username;
     @Column(name = "password")
     private String password;
+    @ManyToMany(mappedBy = "members")
+    private List<Chat> chats;
+
 
 }
