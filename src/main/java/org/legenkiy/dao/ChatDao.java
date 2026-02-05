@@ -45,6 +45,20 @@ public class ChatDao {
         }
     }
 
+    public void delete(Long id){
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()){
+            transaction = session.beginTransaction();
+            Chat chat = session.find(Chat.class, id);
+            session.remove(chat);
+            transaction.commit();
+        }catch (Exception e){
+            LOGGER.info("DELETE CHAT FAILED id {}, {}", id, e);
+            transaction.rollback();
+        }
+
+    }
+
 
 
 }
