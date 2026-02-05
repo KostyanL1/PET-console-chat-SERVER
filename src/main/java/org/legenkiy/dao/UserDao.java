@@ -8,7 +8,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.legenkiy.models.User;
-import org.legenkiy.configs.HibernateConfig;
 import org.springframework.stereotype.Component;
 
 
@@ -57,6 +56,9 @@ public class   UserDao {
             User user = session.find(User.class, updatedUser.getId());
             user.setUsername(updatedUser.getUsername());
             if (updatedUser.getPassword() != null) {
+                user.setPassword(updatedUser.getPassword());
+            }
+            if (updatedUser.getChats() != null ){
                 user.setPassword(updatedUser.getPassword());
             }
             transaction.commit();

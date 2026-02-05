@@ -46,6 +46,21 @@ public class ChatDao {
         }
     }
 
+    public Long update(Chat updatedChat){
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()){
+            Chat chat = session.find(Chat.class, updatedChat.getId());
+            chat.setMembers(updatedChat.getMembers());
+            transaction.commit();
+            return chat.getId();
+        }catch (Exception e){
+            LOGGER.info("UPDATE FAILED {}, {}", updatedChat, e);
+            transaction.rollback();
+            return null;
+        }
+    }
+
+
     public void delete(Long id){
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()){
