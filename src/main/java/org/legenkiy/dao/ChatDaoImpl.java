@@ -9,6 +9,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.legenkiy.api.dao.ChatDao;
 import org.legenkiy.models.Chat;
+import org.legenkiy.models.User;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -27,6 +28,16 @@ public class ChatDaoImpl implements ChatDao {
             return session.createQuery("FROM Chat").list();
         }
     }
+
+    @Override
+    public List<Chat> findAllByMembers(List<User> users){
+        try (Session session = sessionFactory.openSession()){
+            return session.createQuery("from Chat c WHERE c.members=:members", Chat.class)
+                    .setParameter("members", users)
+                    .list();
+        }
+    }
+
 
     @Override
     public Optional<Chat> findById(Long id) {
