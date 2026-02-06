@@ -41,7 +41,7 @@ public class UserDaoImpl implements org.legenkiy.api.dao.UserDao {
     @Override
     public Optional<User> findById(Long id) {
         try (Session session = sessionFactory.openSession()) {
-            return Optional.of(session.find(User.class, id));
+            return Optional.ofNullable(session.find(User.class, id));
         }
     }
 

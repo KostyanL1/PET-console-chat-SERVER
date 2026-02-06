@@ -31,7 +31,7 @@ public class ChatDaoImpl implements ChatDao {
     @Override
     public Optional<Chat> findById(Long id) {
         try (Session session = sessionFactory.openSession()) {
-            return Optional.of(session.find(Chat.class, id));
+            return Optional.ofNullable(session.find(Chat.class, id));
         }
     }
 
