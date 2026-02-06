@@ -22,6 +22,15 @@ public class UserDaoImpl implements org.legenkiy.api.dao.UserDao {
     private final SessionFactory sessionFactory;
 
     @Override
+    public Optional<User> findByUsername(String username){
+        try (Session session = sessionFactory.openSession()){
+            return session.createQuery("FROM User u WHERE u.username=:username", User.class)
+                    .setParameter("username", username)
+                    .uniqueResultOptional();
+        }
+    }
+
+    @Override
     public List<User> findAll() {
         try (Session session = sessionFactory.openSession()) {
             List<User> userList = session.createQuery("From User").list();

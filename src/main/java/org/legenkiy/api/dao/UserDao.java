@@ -7,6 +7,8 @@ import java.util.Optional;
 
 public interface UserDao {
 
+    Optional<User> findByUsername(String username);
+
     List<User> findAll();
 
     Optional<User> findById(Long id);
