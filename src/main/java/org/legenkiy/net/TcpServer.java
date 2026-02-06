@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.legenkiy.connection.ConnectionsManager;
 import org.legenkiy.models.ActiveConnection;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -21,6 +22,7 @@ public class TcpServer implements Runnable {
 
 
     private final ConnectionsManager connectionsManager;
+    private final ApplicationContext applicationContext;
 
 
     @Override
@@ -41,9 +43,8 @@ public class TcpServer implements Runnable {
         new Thread(() -> {
             try {
                 connect(clientSocket);
-                Thread thread = new Thread(new ClientHandler(clientSocket, this.connectionsManager));
+                Thread thread = new Thread(applicationContext.getBean(ClientHandler.class, clientSocket));
                 thread.start();
-
             } catch (IOException e) {
                 String message = "CONNECTION LOST WITH SOCKET " + clientSocket.getInetAddress() + ":" + clientSocket.getPort();
                 LOGGER.warn(message);
