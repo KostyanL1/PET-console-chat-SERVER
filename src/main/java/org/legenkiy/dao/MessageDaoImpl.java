@@ -7,72 +7,69 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.legenkiy.api.dao.MessageDao;
 import org.legenkiy.models.Chat;
+import org.legenkiy.models.Message;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class ChatDao {
+public class MessageDaoImpl implements MessageDao {
 
-    private static final Logger LOGGER = LogManager.getLogger(ChatDao.class);
+    private static final Logger LOGGER = LogManager.getLogger(MessageDaoImpl.class);
     private final SessionFactory sessionFactory;
 
-    public List<Chat> findAll() {
+    @Override
+    public List<Message> findAllByChat(Chat chat) {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("FROM Chat").list();
+            return session.createQuery("FROM Message m WHERE m.chat=:chat", Message.class)
+                    .setParameter("chat", chat)
+                    .list();
         }
     }
 
-    public Optional<Chat> findById(Long id) {
-        try (Session session = sessionFactory.openSession()) {
-            return Optional.of(session.find(Chat.class, id));
-        }
-    }
-
-    public Long save(Chat newChat) {
+    @Override
+    public Long save(Message newMessage) {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
-            session.persist(newChat);
+            session.persist(newMessage);
             transaction.commit();
-            return newChat.getId();
+            return newMessage.getId();
         } catch (Exception e) {
-            LOGGER.info("SAVE FAILED {}, {}", newChat, e);
+            LOGGER.info("CHAT CREATION FAILED WITH id {}, {}", newMessage.getId(), e);
             transaction.rollback();
             return null;
         }
     }
 
-    public Long update(Chat updatedChat) {
+    @Override
+    public Long update(Message updatedMessage) {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
-            Chat chat = session.find(Chat.class, updatedChat.getId());
-            chat.setMembers(updatedChat.getMembers());
+            Message message = session.find(Message.class, updatedMessage.getId());
+            message.setContent(updatedMessage.getContent());
             transaction.commit();
-            return chat.getId();
+            return message.getId();
         } catch (Exception e) {
-            LOGGER.info("UPDATE FAILED {}, {}", updatedChat, e);
+            LOGGER.info("MESSAGE UPDATE FAILED WITH id {}, {}", updatedMessage.getId(), e);
             transaction.rollback();
             return null;
         }
     }
 
-
+    @Override
     public void delete(Long id) {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
-            Chat chat = session.find(Chat.class, id);
-            session.remove(chat);
+            Message message = session.find(Message.class, id);
+            session.remove(message);
             transaction.commit();
         } catch (Exception e) {
-            LOGGER.info("DELETE CHAT FAILED id {}, {}", id, e);
+            LOGGER.info("MESSAGE DELETE FAILED WITH id {}, {}", id, e);
             transaction.rollback();
         }
-
     }
 
 
