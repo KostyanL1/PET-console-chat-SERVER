@@ -1,6 +1,7 @@
 package org.legenkiy.connection;
 
 
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.legenkiy.exceptions.AlreadyConnectedException;
@@ -34,6 +35,13 @@ public class ConnectionsManager {
         }
         LOGGER.warn("CONNECTION ALREADY EXIST : {}", activeConnection);
         throw new AlreadyConnectedException("Connection already exist");
+    }
+
+    public ActiveConnection findConnectionByUsername(String username){
+        return this.activeConnectionList.stream().filter(
+                activeConnection ->
+                    activeConnection.getUsername().equals(username)
+        ).findFirst().orElseThrow( () -> new RuntimeException("CONNECTION NOT FOUND"));
     }
 
     private synchronized boolean isAlreadyConnected(ActiveConnection activeConnection) {

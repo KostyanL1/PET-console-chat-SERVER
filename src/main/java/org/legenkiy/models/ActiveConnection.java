@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class ActiveConnection {
 
     private Long id;
+    private String username;
     private LocalDateTime connectedAt;
     private String socket;
 
