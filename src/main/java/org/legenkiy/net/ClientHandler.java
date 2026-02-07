@@ -1,7 +1,12 @@
 package org.legenkiy.net;
 
 
-import org.legenkiy.connection.ConnectionsManager;
+import lombok.RequiredArgsConstructor;
+import org.legenkiy.api.service.DispatcherService;
+import org.legenkiy.mapper.MessageMapper;
+import org.legenkiy.protocol.ClientMessage;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,40 +15,39 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 
+@Component
+@Scope(scopeName = "prototype")
+@RequiredArgsConstructor
 public class ClientHandler implements Runnable {
 
-    private final Socket socket;
-    private final ConnectionsManager connectionsManager;
+    private final MessageMapper mapper;
+    private final DispatcherService dispatcherService;
 
-    public ClientHandler(Socket socket, ConnectionsManager connectionsManager) {
+    private Socket socket;
+
+    public void init(Socket socket) {
         this.socket = socket;
-        this.connectionsManager = connectionsManager;
     }
 
 
     @Override
     public void run() {
+
+
         try (
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
                 PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true)
-        ) {
-            String message;
+                ) {
             while (true) {
-                if ((message = bufferedReader.readLine()) != null) {
-                    switch (message) {
-                        case "/exit": {
-                            connectionsManager.removeConnection(socket);
-                            return;
-                        }
-                        default: {
-                            System.out.println(message);
-                        }
-                    }
-                }
+                String messageJson = bufferedReader.readLine();
+                System.out.println(messageJson);
+                ClientMessage clientMessage = mapper.decode(messageJson, ClientMessage.class);
+                dispatcherService.handle(clientMessage, socket, printWriter);
             }
-
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
+
+
     }
 }
