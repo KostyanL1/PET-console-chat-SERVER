@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.legenkiy.connection.ConnectionsManager;
+import org.legenkiy.factory.ClientHandlerFactory;
 import org.legenkiy.models.ActiveConnection;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,7 @@ public class TcpServer implements Runnable {
 
 
     private final ConnectionsManager connectionsManager;
-    private final ApplicationContext applicationContext;
+    private final ClientHandlerFactory clientHandlerFactory;
 
 
     @Override
@@ -40,18 +41,15 @@ public class TcpServer implements Runnable {
 
 
     public void handleConnection(Socket clientSocket) {
-        new Thread(() -> {
             try {
                 connect(clientSocket);
-                Thread thread = new Thread(applicationContext.getBean(ClientHandler.class, clientSocket));
+                Thread thread = new Thread(clientHandlerFactory.create(clientSocket));
                 thread.start();
             } catch (IOException e) {
                 String message = "CONNECTION LOST WITH SOCKET " + clientSocket.getInetAddress() + ":" + clientSocket.getPort();
                 LOGGER.warn(message);
                 System.out.println(message);
             }
-        }
-        ).start();
     }
 
 
