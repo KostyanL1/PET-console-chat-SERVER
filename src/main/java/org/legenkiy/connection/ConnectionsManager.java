@@ -20,20 +20,15 @@ import java.util.concurrent.atomic.AtomicLong;
 @Component
 public class ConnectionsManager {
 
-    private List<ActiveConnection> activeConnectionList = new CopyOnWriteArrayList<>();
-    private AtomicLong index = new AtomicLong(0);
-    private final Logger LOGGER = LogManager.getLogger(ConnectionsManager.class);
+    private final List<ActiveConnection> activeConnectionList = new CopyOnWriteArrayList<>();
+    private final AtomicLong index = new AtomicLong(0);
 
-    public ActiveConnection addNewConnection(ActiveConnection activeConnection) {
+    public void addNewConnection(ActiveConnection activeConnection) {
         if (!isAlreadyConnected(activeConnection)) {
             activeConnection.setId(index.incrementAndGet());
             activeConnection.setClientState(ClientState.NEW);
             this.activeConnectionList.add(activeConnection);
-            LOGGER.info("NEW CONNECTION CREATED : {}", activeConnection);
-            activeConnectionList.forEach(System.out::println);
-            return activeConnection;
         }
-        LOGGER.warn("CONNECTION ALREADY EXIST : {}", activeConnection);
         throw new AlreadyConnectedException("Connection already exist");
     }
 
@@ -41,7 +36,7 @@ public class ConnectionsManager {
         return this.activeConnectionList.stream().filter(
                 activeConnection ->
                         activeConnection.getUsername().equals(username)
-        ).findFirst().orElseThrow(() -> new RuntimeException("CONNECTION NOT FOUND"));
+        ).findFirst().orElseThrow(() -> new RuntimeException("Connection not found"));
     }
 
     private synchronized boolean isAlreadyConnected(ActiveConnection activeConnection) {
@@ -55,17 +50,15 @@ public class ConnectionsManager {
         return this.activeConnectionList.stream().filter(connection ->
                 connection.getId().equals(id)).findFirst().orElseThrow(
                 () -> {
-                    LOGGER.warn("CONNECTION WITH ID {} NOT FOUND", id);
-                    throw new ObjectNotFoundException("CONNECTION WITH ID " + id + " NOT FOUND");
+                    throw new ObjectNotFoundException("Connection not found");
                 }
         );
     }
 
-    public void authenticate(Socket socket, String username) {
+    public synchronized void authenticate(Socket socket, String username) {
         ActiveConnection connection = findConnectionBySocket(socket);
         connection.setUsername(username);
         connection.setClientState(ClientState.AUTHENTICATED);
-        LOGGER.info("AUTHENTICATED {}", username);
     }
 
     public synchronized ActiveConnection findConnectionBySocket(Socket socket) {
@@ -73,21 +66,15 @@ public class ConnectionsManager {
                     activeConnection -> {
                         String socketAsConnection = activeConnection.getSocket().getRemoteSocketAddress().toString();
                         String socketAsArgument = socket.getRemoteSocketAddress().toString();
-                        LOGGER.info("socketAsConnection {}", socketAsConnection);
-                        LOGGER.info("socketAsArgument {}", socketAsArgument);
                         return socketAsConnection.contentEquals(socketAsArgument);
                     }).findFirst().orElseThrow(
-                    () -> {
-                        LOGGER.warn("CONNECTION WITH SOCKET {} NOT FOUND", socket);
-                        return new ObjectNotFoundException("CONNECTION WITH SOCKET " + socket + " NOT FOUND");
-                    });
+                    () -> new ObjectNotFoundException("Connection not found"));
     }
 
 
     public ActiveConnection removeConnection(Socket socket) {
         ActiveConnection activeConnection = findConnectionBySocket(socket);
         this.activeConnectionList.remove(activeConnection);
-        LOGGER.info("CONNECTION {} REMOVED", activeConnection);
         return activeConnection;
     }
 }

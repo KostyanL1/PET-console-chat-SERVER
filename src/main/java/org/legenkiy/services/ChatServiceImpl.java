@@ -1,6 +1,7 @@
 package org.legenkiy.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.legenkiy.api.service.AuthService;
@@ -27,18 +28,22 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public void processMessage(ClientMessage clientMessage, Socket clientSocket, PrintWriter clientPrintWriter) {
             if (authService.isAuthenticate(clientSocket)) {
-                LOGGER.info("SOCKET AUTHENTICATE {}", clientSocket);
-                String recipientUsername = clientMessage.getTo();
-                ServerMessage serverMessage = ServerMessage.chat(clientMessage.getFrom(), clientMessage.getContent());
-                Socket recipientSocket = connectionsManager.findConnectionByUsername(recipientUsername).getSocket();
+                Socket recipientSocket = connectionsManager.findConnectionByUsername(clientMessage.getTo()).getSocket();
                 try (PrintWriter recipientPrintWriter = new PrintWriter(recipientSocket.getOutputStream(), true)){
-                    recipientPrintWriter.println(mapper.encode(serverMessage));
-                    LOGGER.info("MESSAGE ENCODED {}", serverMessage);
+                    recipientPrintWriter.println(mapper.encode(
+                            ServerMessage
+                                    .chat(
+                                            clientMessage.getFrom(),
+                                            clientMessage.getContent()
+                                    )
+                    ));
                 }catch (Exception e){
-                    clientPrintWriter.println("FAILED TO SENT : " + e);
+                    LOGGER.info("Sending failed. Exception {}", e.getMessage());
+                    clientPrintWriter.println("Sending failed");
                 }
             }else {
-                clientPrintWriter.println("NEED AUTHENTICATION");
+                LOGGER.info("Sending failed. Authentication needed for client {}", clientSocket.getRemoteSocketAddress());
+                clientPrintWriter.println("Authentication needed");
             }
 
     }

@@ -7,7 +7,6 @@ import org.apache.logging.log4j.Logger;
 import org.legenkiy.api.service.AuthService;
 import org.legenkiy.api.service.ChatService;
 import org.legenkiy.api.service.DispatcherService;
-import org.legenkiy.connection.ConnectionsManager;
 import org.legenkiy.protocol.ClientMessage;
 import org.legenkiy.protocol.MessageType;
 import org.springframework.stereotype.Service;
@@ -22,13 +21,12 @@ public class DispatcherServiceImpl implements DispatcherService {
 
     private final static Logger LOGGER = LogManager.getLogger(DispatcherServiceImpl.class);
 
-    private final ConnectionsManager connectionsManager;
     private final ChatService chatService;
     private final AuthService authService;
 
     @Override
     public void handle(ClientMessage clientMessage, Socket socket, PrintWriter printWriter) {
-        LOGGER.info("BEFORE SWITCH CLIENT MESSAGE {}",clientMessage);
+        LOGGER.info("Handling request from {}" , socket.getRemoteSocketAddress());
         MessageType messageType = clientMessage.getMessageType();
         switch (messageType) {
             case HELLO -> {
@@ -38,7 +36,6 @@ public class DispatcherServiceImpl implements DispatcherService {
 
             }
             case PM -> {
-                LOGGER.info("STARTED PROCESS MESSAGE");
                 chatService.processMessage(clientMessage, socket, printWriter);
                 break;
             }
@@ -52,9 +49,8 @@ public class DispatcherServiceImpl implements DispatcherService {
 
             }
             case LOGIN -> {
-                LOGGER.info("STARTED LOGINING");
                 authService.login(socket, clientMessage.getUsername());
-                printWriter.println("AUTHENTICATED");
+                printWriter.println("Authenticated");
                 break;
             }
             case REGISTER -> {

@@ -26,9 +26,9 @@ public class AuthServiceImpl implements AuthService {
     public void login(Socket socket, String username) {
         if (!isAuthenticate(socket)){
             connectionsManager.authenticate(socket, username);
-            LOGGER.info("AUTHENTICATED {}" , username);
         }else {
-            throw new AuthException("AUTHENTICATED");
+            LOGGER.info("This socket authenticated {}", socket.getRemoteSocketAddress());
+            throw new AuthException("This socket authenticated " + socket.getRemoteSocketAddress());
         }
     }
 
@@ -36,7 +36,6 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public boolean isAuthenticate(Socket socket) {
-        LOGGER.info("CHECKING IS AUTHENTICATE {}", socket);
         Optional<ActiveConnection> activeConnection = Optional.ofNullable(connectionsManager.findConnectionBySocket(socket));
         return activeConnection.map(connection -> connection.getClientState().equals(ClientState.AUTHENTICATED)).orElse(false);
     }

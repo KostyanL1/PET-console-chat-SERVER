@@ -13,7 +13,5 @@ public class Application {
         TcpServer server = ctx.getBean(TcpServer.class);
         Thread thread = new Thread(server);
         thread.start();
-
     }
-
 }

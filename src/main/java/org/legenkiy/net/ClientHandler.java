@@ -29,13 +29,13 @@ public class ClientHandler implements Runnable {
 
     private final MessageMapper mapper;
     private final DispatcherService dispatcherService;
+    private final ConnectionsManager connectionsManager;
 
     private Socket socket;
 
     public void init(Socket socket) {
         this.socket = socket;
     }
-
 
     @Override
     public void run() {
@@ -45,23 +45,20 @@ public class ClientHandler implements Runnable {
                 )
         {
             while (true) {
-                LOGGER.info("WAIT NEW COMMAND");
+                System.out.println("waiting command for " + socket.getRemoteSocketAddress());
                 String messageJson = bufferedReader.readLine();
-                System.out.println( "\n" + messageJson + "\n");
                 ClientMessage clientMessage = mapper.decode(messageJson, ClientMessage.class);
-                LOGGER.info("START TO HANDLE CLIENT MESSAGE {} ON SOCKET {}", clientMessage, socket);
                 dispatcherService.handle(clientMessage, socket, printWriter);
 
             }
         } catch (IOException exception) {
             try {
                 socket.close();
-                LOGGER.info("SOCKET CLOSED {}", socket);
+                connectionsManager.removeConnection(socket);
+                LOGGER.info("Socket closed {}", socket);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-
-            throw new RuntimeException(exception);
         }
 
     }
