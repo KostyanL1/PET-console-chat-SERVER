@@ -2,7 +2,11 @@ package org.legenkiy.net;
 
 
 import lombok.RequiredArgsConstructor;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.legenkiy.api.service.DispatcherService;
+import org.legenkiy.connection.ConnectionsManager;
 import org.legenkiy.mapper.MessageMapper;
 import org.legenkiy.protocol.ClientMessage;
 import org.springframework.context.annotation.Scope;
@@ -15,13 +19,17 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 
+
 @Component
 @Scope(scopeName = "prototype")
 @RequiredArgsConstructor
 public class ClientHandler implements Runnable {
 
+    private final static Logger LOGGER = LogManager.getLogger(ClientHandler.class);
+
     private final MessageMapper mapper;
     private final DispatcherService dispatcherService;
+    private final ConnectionsManager connectionsManager;
 
     private Socket socket;
 
@@ -29,25 +37,29 @@ public class ClientHandler implements Runnable {
         this.socket = socket;
     }
 
-
     @Override
     public void run() {
-
-
         try (
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
                 PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true)
-                ) {
+                )
+        {
             while (true) {
+                System.out.println("waiting command for " + socket.getRemoteSocketAddress());
                 String messageJson = bufferedReader.readLine();
-                System.out.println(messageJson);
                 ClientMessage clientMessage = mapper.decode(messageJson, ClientMessage.class);
                 dispatcherService.handle(clientMessage, socket, printWriter);
+
             }
         } catch (IOException exception) {
-            throw new RuntimeException(exception);
+            try {
+                socket.close();
+                connectionsManager.removeConnection(socket);
+                LOGGER.info("Socket closed {}", socket);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
-
 
     }
 }

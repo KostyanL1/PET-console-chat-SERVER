@@ -7,13 +7,11 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 public class Application {
     public static void main(String[] args) {
-        try (AnnotationConfigApplicationContext ctx =
-                     new AnnotationConfigApplicationContext(ApplicationConfig.class)) {
-            TcpServer server = ctx.getBean(TcpServer.class);
-            Thread thread = new Thread(server);
-            thread.start();
-        }
-
+        AnnotationConfigApplicationContext ctx =
+                new AnnotationConfigApplicationContext(ApplicationConfig.class);
+        ctx.registerShutdownHook();
+        TcpServer server = ctx.getBean(TcpServer.class);
+        Thread thread = new Thread(server);
+        thread.start();
     }
-
 }

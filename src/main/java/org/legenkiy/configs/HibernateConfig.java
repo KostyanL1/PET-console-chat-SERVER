@@ -28,9 +28,9 @@ public class HibernateConfig {
             StandardServiceRegistryBuilder standardServiceRegistryBuilder = new StandardServiceRegistryBuilder()
                     .applySettings(configuration.getProperties());
             sessionFactory = configuration.buildSessionFactory(standardServiceRegistryBuilder.build());
-            LOGGER.info("SESSION FACTORY SUCCESSFULLY BUILT");
+            LOGGER.info("Session factory built");
         } catch (Exception e) {
-            LOGGER.info("SESSION FACTORY BUILDING FAILED");
+            LOGGER.info("Session factory build failed");
             throw new RuntimeException(e);
         }
         return sessionFactory;

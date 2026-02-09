@@ -29,10 +29,11 @@ public class TcpServer implements Runnable {
     @Override
     public void run() {
         try (ServerSocket serverSocket = new ServerSocket(1010)) {
-            LOGGER.info("SERVER WAS STARTED ON PORT 1010");
+            LOGGER.info("Server started on port - {}", 1010);
             while (true) {
                 Socket socket = serverSocket.accept();
                 handleConnection(socket);
+                LOGGER.info("Connection created {}", socket.getRemoteSocketAddress());
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -40,15 +41,14 @@ public class TcpServer implements Runnable {
     }
 
 
-    public void handleConnection(Socket clientSocket) {
+    public void handleConnection(Socket clientSocket) throws ConnectException {
             try {
                 connect(clientSocket);
                 Thread thread = new Thread(clientHandlerFactory.create(clientSocket));
                 thread.start();
             } catch (IOException e) {
-                String message = "CONNECTION LOST WITH SOCKET " + clientSocket.getInetAddress() + ":" + clientSocket.getPort();
-                LOGGER.warn(message);
-                System.out.println(message);
+                LOGGER.info("Connection lost with socket {}", clientSocket.getRemoteSocketAddress());
+                throw new ConnectException("Connection lost");
             }
     }
 
@@ -57,12 +57,12 @@ public class TcpServer implements Runnable {
         if (clientSocket.isConnected()) {
             ActiveConnection activeConnection = ActiveConnection.builder()
                     .connectedAt(LocalDateTime.now())
-                    .socket(clientSocket.getInetAddress() + ":" + clientSocket.getPort()).build();
+                    .socket(clientSocket).build();
             connectionsManager.addNewConnection(activeConnection);
-            LOGGER.info("CONNECTED {}", clientSocket);
+            LOGGER.info("Connected socket {}", clientSocket);
         } else {
-            LOGGER.warn("FAILED CONNECTION {}", clientSocket);
-            throw new ConnectException("Failed connections");
+            LOGGER.warn("Connection failed with socket {}", clientSocket);
+            throw new ConnectException("Connection failed");
         }
     }
 
