@@ -2,12 +2,14 @@ package org.legenkiy.services;
 
 
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.legenkiy.api.service.AuthService;
 import org.legenkiy.api.service.ChatService;
 import org.legenkiy.api.service.DispatcherService;
 import org.legenkiy.connection.ConnectionsManager;
 import org.legenkiy.protocol.ClientMessage;
 import org.legenkiy.protocol.MessageType;
-import org.legenkiy.protocol.ServerMessage;
 import org.springframework.stereotype.Service;
 
 
@@ -18,11 +20,15 @@ import java.net.Socket;
 @RequiredArgsConstructor
 public class DispatcherServiceImpl implements DispatcherService {
 
+    private final static Logger LOGGER = LogManager.getLogger(DispatcherServiceImpl.class);
+
     private final ConnectionsManager connectionsManager;
     private final ChatService chatService;
+    private final AuthService authService;
 
     @Override
     public void handle(ClientMessage clientMessage, Socket socket, PrintWriter printWriter) {
+        LOGGER.info("BEFORE SWITCH CLIENT MESSAGE {}",clientMessage);
         MessageType messageType = clientMessage.getMessageType();
         switch (messageType) {
             case HELLO -> {
@@ -32,11 +38,12 @@ public class DispatcherServiceImpl implements DispatcherService {
 
             }
             case PM -> {
-
+                LOGGER.info("STARTED PROCESS MESSAGE");
+                chatService.processMessage(clientMessage, socket, printWriter);
+                break;
             }
             case MSG -> {
-                chatService.processMessage(clientMessage);
-                break;
+
             }
             case WHO -> {
 
@@ -45,7 +52,10 @@ public class DispatcherServiceImpl implements DispatcherService {
 
             }
             case LOGIN -> {
-
+                LOGGER.info("STARTED LOGINING");
+                authService.login(socket, clientMessage.getUsername());
+                printWriter.println("AUTHENTICATED");
+                break;
             }
             case REGISTER -> {
 

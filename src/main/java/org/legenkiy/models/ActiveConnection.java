@@ -2,7 +2,9 @@ package org.legenkiy.models;
 
 
 import lombok.*;
+import org.legenkiy.enums.ClientState;
 
+import java.net.Socket;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
@@ -15,8 +17,9 @@ public class ActiveConnection {
 
     private Long id;
     private String username;
+    private ClientState clientState;
     private LocalDateTime connectedAt;
-    private String socket;
+    private Socket socket;
 
 
 }

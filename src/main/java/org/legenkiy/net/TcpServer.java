@@ -57,7 +57,7 @@ public class TcpServer implements Runnable {
         if (clientSocket.isConnected()) {
             ActiveConnection activeConnection = ActiveConnection.builder()
                     .connectedAt(LocalDateTime.now())
-                    .socket(clientSocket.getInetAddress() + ":" + clientSocket.getPort()).build();
+                    .socket(clientSocket).build();
             connectionsManager.addNewConnection(activeConnection);
             LOGGER.info("CONNECTED {}", clientSocket);
         } else {
