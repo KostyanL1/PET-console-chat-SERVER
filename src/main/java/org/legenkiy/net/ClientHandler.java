@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.legenkiy.api.service.DispatcherService;
 import org.legenkiy.connection.ConnectionsManager;
 import org.legenkiy.mapper.MessageMapper;
-import org.legenkiy.protocol.ClientMessage;
+import org.legenkiy.protocol.message.ClientMessage;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -44,15 +44,21 @@ public class ClientHandler implements Runnable {
                 PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true)
                 )
         {
+            System.out.println("waiting command for " + socket.getRemoteSocketAddress());
             while (true) {
-                System.out.println("waiting command for " + socket.getRemoteSocketAddress());
-                String messageJson = bufferedReader.readLine();
-                ClientMessage clientMessage = mapper.decode(messageJson, ClientMessage.class);
-                dispatcherService.handle(clientMessage, socket, printWriter);
+                String message;
+                if ( (message = bufferedReader.readLine()) != null   ){
+                    ClientMessage clientMessage = mapper.decode(message, ClientMessage.class);
+                    dispatcherService.handle(clientMessage, socket, printWriter);
+                }
+
+
 
             }
         } catch (IOException exception) {
             try {
+
+                System.out.println(exception.getMessage());
                 socket.close();
                 connectionsManager.removeConnection(socket);
                 LOGGER.info("Socket closed {}", socket);

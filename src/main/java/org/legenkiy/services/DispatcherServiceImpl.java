@@ -1,14 +1,18 @@
 package org.legenkiy.services;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.legenkiy.api.service.AuthService;
 import org.legenkiy.api.service.ChatService;
 import org.legenkiy.api.service.DispatcherService;
-import org.legenkiy.protocol.ClientMessage;
-import org.legenkiy.protocol.MessageType;
+import org.legenkiy.mapper.MessageMapper;
+import org.legenkiy.protocol.dtos.AuthDto;
+import org.legenkiy.protocol.message.ClientMessage;
+import org.legenkiy.protocol.enums.MessageType;
+import org.legenkiy.protocol.message.ServerMessage;
 import org.springframework.stereotype.Service;
 
 
@@ -23,9 +27,10 @@ public class DispatcherServiceImpl implements DispatcherService {
 
     private final ChatService chatService;
     private final AuthService authService;
+    private final MessageMapper messageMapper;
 
     @Override
-    public void handle(ClientMessage clientMessage, Socket socket, PrintWriter printWriter) {
+    public void handle(ClientMessage clientMessage, Socket socket, PrintWriter printWriter) throws JsonProcessingException {
         LOGGER.info("Handling request from {}" , socket.getRemoteSocketAddress());
         MessageType messageType = clientMessage.getMessageType();
         switch (messageType) {
@@ -49,8 +54,13 @@ public class DispatcherServiceImpl implements DispatcherService {
 
             }
             case LOGIN -> {
-                authService.login(socket, clientMessage.getUsername());
-                printWriter.println("Authenticated");
+                String username = clientMessage.getUsername();
+                System.out.println(username);
+                authService.login(socket, username);
+                AuthDto authDto = new AuthDto();
+                authDto.setUsername(username);
+                ServerMessage serverMessage = ServerMessage.ok(messageMapper.encode(authDto));
+                printWriter.println(messageMapper.encode(serverMessage));
                 break;
             }
             case REGISTER -> {

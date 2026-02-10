@@ -1,7 +1,7 @@
 package org.legenkiy.api.service;
 
-import org.legenkiy.protocol.ClientMessage;
-import org.legenkiy.protocol.ServerMessage;
+import org.legenkiy.protocol.message.ClientMessage;
+import org.legenkiy.protocol.message.ServerMessage;
 
 import java.io.PrintWriter;
 import java.net.Socket;
