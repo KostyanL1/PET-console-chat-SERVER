@@ -10,6 +10,7 @@ import org.legenkiy.exceptions.ObjectNotFoundException;
 import org.legenkiy.models.ActiveConnection;
 import org.springframework.stereotype.Component;
 
+import java.net.ConnectException;
 import java.net.Socket;
 import java.util.List;
 import java.util.Optional;
@@ -23,13 +24,14 @@ public class ConnectionsManager {
     private final List<ActiveConnection> activeConnectionList = new CopyOnWriteArrayList<>();
     private final AtomicLong index = new AtomicLong(0);
 
-    public void addNewConnection(ActiveConnection activeConnection) {
+    public void addNewConnection(ActiveConnection activeConnection) throws ConnectException {
         if (!isAlreadyConnected(activeConnection)) {
             activeConnection.setId(index.incrementAndGet());
             activeConnection.setClientState(ClientState.NEW);
             this.activeConnectionList.add(activeConnection);
+        }else {
+            throw new ConnectException("Connection exist");
         }
-        throw new AlreadyConnectedException("Connection already exist");
     }
 
     public ActiveConnection findConnectionByUsername(String username) {

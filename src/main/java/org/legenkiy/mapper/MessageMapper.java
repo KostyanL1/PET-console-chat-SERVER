@@ -1,6 +1,7 @@
 package org.legenkiy.mapper;
 
-import org.legenkiy.protocol.JsonCodec;
+
+import org.legenkiy.protocol.mapper.JsonCodec;
 import org.springframework.stereotype.Component;
 
 

@@ -1,15 +1,14 @@
 package org.legenkiy.services;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.legenkiy.api.service.AuthService;
 import org.legenkiy.api.service.ChatService;
 import org.legenkiy.connection.ConnectionsManager;
 import org.legenkiy.mapper.MessageMapper;
-import org.legenkiy.protocol.ClientMessage;
-import org.legenkiy.protocol.ServerMessage;
+import org.legenkiy.protocol.message.ClientMessage;
+import org.legenkiy.protocol.message.ServerMessage;
 import org.springframework.stereotype.Service;
 
 
