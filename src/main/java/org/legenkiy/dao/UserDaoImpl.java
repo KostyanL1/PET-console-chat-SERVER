@@ -83,7 +83,7 @@ public class UserDaoImpl implements org.legenkiy.api.dao.UserDao {
     }
 
     @Override
-    public void delete(Long id) {
+    public void deleteById(Long id) {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
@@ -94,6 +94,19 @@ public class UserDaoImpl implements org.legenkiy.api.dao.UserDao {
             LOGGER.info("DELETE USER FAILED id {}, {}", id, e);
             transaction.rollback();
         }
+    }
+
+    @Override
+    public void deleteByUsername(String username){
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()){
+            User user = session.find(User.class, username);
+            session.remove(user);
+            transaction.commit();
+        }catch (Exception e){
+            LOGGER.info("DELETE USER FAILED username {}, {}", username, e);
+        }
+
     }
 
 }
