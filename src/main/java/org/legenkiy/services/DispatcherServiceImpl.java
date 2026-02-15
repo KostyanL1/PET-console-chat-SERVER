@@ -41,8 +41,8 @@ public class DispatcherServiceImpl implements DispatcherService {
 
             }
             case PM -> {
+                System.out.println("process");
                 chatService.processMessage(clientMessage, socket, printWriter);
-                break;
             }
             case MSG -> {
 
@@ -54,21 +54,15 @@ public class DispatcherServiceImpl implements DispatcherService {
 
             }
             case LOGIN -> {
-                String username = clientMessage.getUsername();
-                System.out.println(username);
-                authService.login(socket, username);
-                AuthDto authDto = new AuthDto();
-                authDto.setUsername(username);
-                ServerMessage serverMessage = ServerMessage.ok(messageMapper.encode(authDto));
-                printWriter.println(messageMapper.encode(serverMessage));
-                break;
+                authService.login(socket, clientMessage.getAuthDto());
+                printWriter.println(messageMapper.encode(ServerMessage.ok("authenticated : " + clientMessage.getAuthDto().getUsername())));
             }
             case REGISTER -> {
-
+                authService.register(socket, clientMessage.getAuthDto());
+                printWriter.println(messageMapper.encode(ServerMessage.ok("registered : " + clientMessage.getAuthDto().getUsername())));
             }
             default -> {
                 printWriter.println("[UNKNOWN COMMAND]");
-                break;
             }
         }
     }

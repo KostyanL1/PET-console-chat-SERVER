@@ -44,21 +44,17 @@ public class ClientHandler implements Runnable {
                 PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true)
                 )
         {
-            System.out.println("waiting command for " + socket.getRemoteSocketAddress());
             while (true) {
+                System.out.println("waiting command for " + socket.getRemoteSocketAddress());
                 String message;
-                if ( (message = bufferedReader.readLine()) != null   ){
+                if ((message = bufferedReader.readLine()) != null){
                     ClientMessage clientMessage = mapper.decode(message, ClientMessage.class);
                     dispatcherService.handle(clientMessage, socket, printWriter);
                 }
-
-
-
             }
         } catch (IOException exception) {
+            System.out.println(exception);
             try {
-
-                System.out.println(exception.getMessage());
                 socket.close();
                 connectionsManager.removeConnection(socket);
                 LOGGER.info("Socket closed {}", socket);

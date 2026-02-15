@@ -1,11 +1,8 @@
 package org.legenkiy.connection;
 
 
-import lombok.Getter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
 import org.legenkiy.enums.ClientState;
-import org.legenkiy.exceptions.AlreadyConnectedException;
 import org.legenkiy.exceptions.ObjectNotFoundException;
 import org.legenkiy.models.ActiveConnection;
 import org.springframework.stereotype.Component;
@@ -35,10 +32,13 @@ public class ConnectionsManager {
     }
 
     public ActiveConnection findConnectionByUsername(String username) {
-        return this.activeConnectionList.stream().filter(
-                activeConnection ->
-                        activeConnection.getUsername().equals(username)
+        activeConnectionList.forEach(System.out::println);
+        ActiveConnection activeConnection = this.activeConnectionList.stream().filter(
+                active ->
+                        active.getUsername().equals(username)
         ).findFirst().orElseThrow(() -> new RuntimeException("Connection not found"));
+        System.out.println(activeConnection);
+        return activeConnection;
     }
 
     private synchronized boolean isAlreadyConnected(ActiveConnection activeConnection) {
