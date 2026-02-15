@@ -39,7 +39,7 @@ public class AuthServiceImpl implements AuthService {
                 connectionsManager.authenticate(socket, authDto.getUsername());
             }else {
                 LOGGER.info("This username already exist {}", authDto.getUsername());
-                throw new AuthException("This username already exist " + socket.getRemoteSocketAddress());
+                throw new AuthException("This username already exist " + authDto.getUsername());
             }
         }else {
             LOGGER.info("This socket authenticated {}", socket.getRemoteSocketAddress());
@@ -49,9 +49,20 @@ public class AuthServiceImpl implements AuthService {
     }
     
     @Override
-    public void login(Socket socket, String username) {
+    public void login(Socket socket, AuthDto authDto) {
         if (!isAuthenticate(socket)){
-            connectionsManager.authenticate(socket, username);
+            String username = authDto.getUsername();
+            if (isRegistered(username)){
+                if (isPasswordCorrect(authDto)){
+                    connectionsManager.authenticate(socket, authDto.getUsername());
+                }else {
+                    LOGGER.info("Password incorrect for username : {}", username);
+                    throw new AuthException("Password incorrect for username : " + username);
+                }
+            }else {
+                LOGGER.info("This username doesn`t exist {}", username);
+                throw new AuthException("This username doesn`t exist " + username);
+            }
         }else {
             LOGGER.info("This socket authenticated {}", socket.getRemoteSocketAddress());
             throw new AuthException("This socket authenticated " + socket.getRemoteSocketAddress());
@@ -72,5 +83,9 @@ public class AuthServiceImpl implements AuthService {
         }catch (ObjectNotFoundException e){
             return false;
         }
+    }
+
+    private boolean isPasswordCorrect(AuthDto authDto){
+        return BCrypt.checkpw(authDto.getPassword(), userService.findByUsername(authDto.getUsername()).getPassword());
     }
 }

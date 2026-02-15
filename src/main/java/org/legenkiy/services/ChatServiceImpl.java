@@ -27,7 +27,10 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public void processMessage(ClientMessage clientMessage, Socket clientSocket, PrintWriter clientPrintWriter) {
             if (authService.isAuthenticate(clientSocket)) {
+                System.out.println(clientMessage.getFrom());
+                System.out.println(clientMessage.getTo());
                 Socket recipientSocket = connectionsManager.findConnectionByUsername(clientMessage.getTo()).getSocket();
+                System.out.println(recipientSocket);
                 try (PrintWriter recipientPrintWriter = new PrintWriter(recipientSocket.getOutputStream(), true)){
                     recipientPrintWriter.println(mapper.encode(
                             ServerMessage
@@ -36,6 +39,7 @@ public class ChatServiceImpl implements ChatService {
                                             clientMessage.getContent()
                                     )
                     ));
+                    System.out.println("good");
                 }catch (Exception e){
                     LOGGER.info("Sending failed. Exception {}", e.getMessage());
                     clientPrintWriter.println("Sending failed");

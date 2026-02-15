@@ -7,7 +7,7 @@ import java.net.Socket;
 public interface AuthService {
 
     void register(Socket socket, AuthDto authDto);
-    void login(Socket socket, String username);
+    void login(Socket socket, AuthDto authDto);
     boolean isAuthenticate(Socket socket);
     boolean isRegistered(String username);
 
