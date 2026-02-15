@@ -42,7 +42,6 @@ public class DispatcherServiceImpl implements DispatcherService {
             }
             case PM -> {
                 chatService.processMessage(clientMessage, socket, printWriter);
-                break;
             }
             case MSG -> {
 
@@ -61,14 +60,17 @@ public class DispatcherServiceImpl implements DispatcherService {
                 authDto.setUsername(username);
                 ServerMessage serverMessage = ServerMessage.ok(messageMapper.encode(authDto));
                 printWriter.println(messageMapper.encode(serverMessage));
-                break;
             }
             case REGISTER -> {
-
+                String username = clientMessage.getUsername();
+                System.out.println(username);
+                authService.register(socket, new AuthDto(username, clientMessage.getPassword()));
+                AuthDto authDto = new AuthDto();
+                authDto.setUsername(username);
+                printWriter.println(messageMapper.encode(ServerMessage.ok(messageMapper.encode(authDto))));
             }
             default -> {
                 printWriter.println("[UNKNOWN COMMAND]");
-                break;
             }
         }
     }

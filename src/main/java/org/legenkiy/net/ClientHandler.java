@@ -51,9 +51,6 @@ public class ClientHandler implements Runnable {
                     ClientMessage clientMessage = mapper.decode(message, ClientMessage.class);
                     dispatcherService.handle(clientMessage, socket, printWriter);
                 }
-
-
-
             }
         } catch (IOException exception) {
             try {

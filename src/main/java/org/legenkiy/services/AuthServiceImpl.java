@@ -33,7 +33,7 @@ public class AuthServiceImpl implements AuthService {
         if (!isAuthenticate(socket)){
             if (!isRegistered(authDto.getUsername())){
                 UserDto userDto = new UserDto();
-                userDto.setUsername(userDto.getUsername());
+                userDto.setUsername(authDto.getUsername());
                 userDto.setPassword(BCrypt.hashpw(authDto.getPassword(), BCrypt.gensalt()));
                 userService.save(userDto);
                 connectionsManager.authenticate(socket, authDto.getUsername());
