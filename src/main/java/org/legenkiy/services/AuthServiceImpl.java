@@ -36,8 +36,7 @@ public class AuthServiceImpl implements AuthService {
                 userDto.setUsername(userDto.getUsername());
                 userDto.setPassword(BCrypt.hashpw(authDto.getPassword(), BCrypt.gensalt()));
                 userService.save(userDto);
-
-
+                connectionsManager.authenticate(socket, authDto.getUsername());
             }else {
                 LOGGER.info("This username already exist {}", authDto.getUsername());
                 throw new AuthException("This username already exist " + socket.getRemoteSocketAddress());
@@ -48,19 +47,16 @@ public class AuthServiceImpl implements AuthService {
         }
 
     }
-
-
+    
     @Override
     public void login(Socket socket, String username) {
         if (!isAuthenticate(socket)){
             connectionsManager.authenticate(socket, username);
         }else {
-
+            LOGGER.info("This socket authenticated {}", socket.getRemoteSocketAddress());
             throw new AuthException("This socket authenticated " + socket.getRemoteSocketAddress());
         }
     }
-
-
 
     @Override
     public boolean isAuthenticate(Socket socket) {
