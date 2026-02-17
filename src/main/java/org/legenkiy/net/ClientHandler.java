@@ -39,16 +39,13 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
-        try (
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
-                PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true)
-                )
-        {
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()))) {
             while (true) {
                 System.out.println("waiting command for " + socket.getRemoteSocketAddress());
                 String message;
                 if ((message = bufferedReader.readLine()) != null){
                     ClientMessage clientMessage = mapper.decode(message, ClientMessage.class);
+                    PrintWriter printWriter = connectionsManagerImpl.findConnectionBySocket(socket).getPrintWriter();
                     dispatcherService.handle(clientMessage, socket, printWriter);
                 }
             }
