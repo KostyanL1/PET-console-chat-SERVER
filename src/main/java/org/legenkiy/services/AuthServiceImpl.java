@@ -5,7 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.legenkiy.api.service.AuthService;
 import org.legenkiy.api.service.UserService;
-import org.legenkiy.connection.ConnectionsManager;
+import org.legenkiy.connection.ConnectionsManagerImpl;
 import org.legenkiy.dto.UserDto;
 import org.legenkiy.enums.ClientState;
 import org.legenkiy.exceptions.AuthException;
@@ -24,7 +24,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final static Logger LOGGER = LogManager.getLogger(AuthServiceImpl.class);
 
-    private final ConnectionsManager connectionsManager;
+    private final ConnectionsManagerImpl connectionsManagerImpl;
     private final UserService userService;
 
 
@@ -36,7 +36,7 @@ public class AuthServiceImpl implements AuthService {
                 userDto.setUsername(authDto.getUsername());
                 userDto.setPassword(BCrypt.hashpw(authDto.getPassword(), BCrypt.gensalt()));
                 userService.save(userDto);
-                connectionsManager.authenticate(socket, authDto.getUsername());
+                connectionsManagerImpl.authenticate(socket, authDto.getUsername());
             }else {
                 LOGGER.info("This username already exist {}", authDto.getUsername());
                 throw new AuthException("This username already exist " + authDto.getUsername());
@@ -54,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
             String username = authDto.getUsername();
             if (isRegistered(username)){
                 if (isPasswordCorrect(authDto)){
-                    connectionsManager.authenticate(socket, authDto.getUsername());
+                    connectionsManagerImpl.authenticate(socket, authDto.getUsername());
                 }else {
                     LOGGER.info("Password incorrect for username : {}", username);
                     throw new AuthException("Password incorrect for username : " + username);
@@ -71,7 +71,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public boolean isAuthenticate(Socket socket) {
-        Optional<ActiveConnection> activeConnection = Optional.ofNullable(connectionsManager.findConnectionBySocket(socket));
+        Optional<ActiveConnection> activeConnection = Optional.ofNullable(connectionsManagerImpl.findConnectionBySocket(socket));
         return activeConnection.map(connection -> connection.getClientState().equals(ClientState.AUTHENTICATED)).orElse(false);
     }
 

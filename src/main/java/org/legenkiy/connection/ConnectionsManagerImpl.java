@@ -2,6 +2,7 @@ package org.legenkiy.connection;
 
 
 
+import org.legenkiy.api.connection.ConnectionManager;
 import org.legenkiy.enums.ClientState;
 import org.legenkiy.exceptions.ObjectNotFoundException;
 import org.legenkiy.models.ActiveConnection;
@@ -16,11 +17,12 @@ import java.util.concurrent.atomic.AtomicLong;
 
 
 @Component
-public class ConnectionsManager {
+public class ConnectionsManagerImpl implements ConnectionManager {
 
     private final List<ActiveConnection> activeConnectionList = new CopyOnWriteArrayList<>();
     private final AtomicLong index = new AtomicLong(0);
 
+    @Override
     public void addNewConnection(ActiveConnection activeConnection) throws ConnectException {
         if (!isAlreadyConnected(activeConnection)) {
             activeConnection.setId(index.incrementAndGet());
@@ -31,6 +33,7 @@ public class ConnectionsManager {
         }
     }
 
+    @Override
     public ActiveConnection findConnectionByUsername(String username) {
         activeConnectionList.forEach(System.out::println);
         ActiveConnection activeConnection = this.activeConnectionList.stream().filter(
@@ -41,14 +44,16 @@ public class ConnectionsManager {
         return activeConnection;
     }
 
-    private synchronized boolean isAlreadyConnected(ActiveConnection activeConnection) {
+    @Override
+    public synchronized boolean isAlreadyConnected(ActiveConnection activeConnection) {
         Optional<ActiveConnection> activeConnectionOptional = this.activeConnectionList.stream()
                 .filter(connection ->
                         connection.getId().equals(activeConnection.getId())).findFirst();
         return activeConnectionOptional.isPresent();
     }
 
-    private synchronized ActiveConnection findConnectionById(Long id) {
+    @Override
+    public synchronized ActiveConnection findConnectionById(Long id) {
         return this.activeConnectionList.stream().filter(connection ->
                 connection.getId().equals(id)).findFirst().orElseThrow(
                 () -> {
@@ -56,13 +61,14 @@ public class ConnectionsManager {
                 }
         );
     }
-
+    @Override
     public synchronized void authenticate(Socket socket, String username) {
         ActiveConnection connection = findConnectionBySocket(socket);
         connection.setUsername(username);
         connection.setClientState(ClientState.AUTHENTICATED);
     }
 
+    @Override
     public synchronized ActiveConnection findConnectionBySocket(Socket socket) {
             return this.activeConnectionList.stream().filter(
                     activeConnection -> {
@@ -73,7 +79,7 @@ public class ConnectionsManager {
                     () -> new ObjectNotFoundException("Connection not found"));
     }
 
-
+    @Override
     public ActiveConnection removeConnection(Socket socket) {
         ActiveConnection activeConnection = findConnectionBySocket(socket);
         this.activeConnectionList.remove(activeConnection);

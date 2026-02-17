@@ -3,10 +3,9 @@ package org.legenkiy.net;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.legenkiy.connection.ConnectionsManager;
+import org.legenkiy.connection.ConnectionsManagerImpl;
 import org.legenkiy.factory.ClientHandlerFactory;
 import org.legenkiy.models.ActiveConnection;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -22,7 +21,7 @@ public class TcpServer implements Runnable {
     private static final Logger LOGGER = LogManager.getLogger(TcpServer.class);
 
 
-    private final ConnectionsManager connectionsManager;
+    private final ConnectionsManagerImpl connectionsManagerImpl;
     private final ClientHandlerFactory clientHandlerFactory;
 
 
@@ -58,7 +57,7 @@ public class TcpServer implements Runnable {
             ActiveConnection activeConnection = ActiveConnection.builder()
                     .connectedAt(LocalDateTime.now())
                     .socket(clientSocket).build();
-            connectionsManager.addNewConnection(activeConnection);
+            connectionsManagerImpl.addNewConnection(activeConnection);
             LOGGER.info("Connected socket {}", clientSocket);
         } else {
             LOGGER.warn("Connection failed with socket {}", clientSocket);
