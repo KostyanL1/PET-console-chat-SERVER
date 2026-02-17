@@ -9,6 +9,7 @@ import org.legenkiy.models.ActiveConnection;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -41,22 +42,24 @@ public class TcpServer implements Runnable {
 
 
     public void handleConnection(Socket clientSocket) throws ConnectException {
-            try {
-                connect(clientSocket);
-                Thread thread = new Thread(clientHandlerFactory.create(clientSocket));
-                thread.start();
-            } catch (IOException e) {
-                LOGGER.info("Connection lost with socket {}", clientSocket.getRemoteSocketAddress());
-                throw new ConnectException("Connection lost");
-            }
+        try {
+            connect(clientSocket);
+            Thread thread = new Thread(clientHandlerFactory.create(clientSocket));
+            thread.start();
+        } catch (IOException e) {
+            LOGGER.info("Connection lost with socket {}", clientSocket.getRemoteSocketAddress());
+            throw new ConnectException("Connection lost");
+        }
     }
 
 
-    private void connect(Socket clientSocket) throws ConnectException {
+    private void connect(Socket clientSocket) throws IOException {
         if (clientSocket.isConnected()) {
             ActiveConnection activeConnection = ActiveConnection.builder()
                     .connectedAt(LocalDateTime.now())
-                    .socket(clientSocket).build();
+                    .socket(clientSocket)
+                    .printWriter(new PrintWriter(clientSocket.getOutputStream()))
+                    .build();
             connectionsManagerImpl.addNewConnection(activeConnection);
             LOGGER.info("Connected socket {}", clientSocket);
         } else {
