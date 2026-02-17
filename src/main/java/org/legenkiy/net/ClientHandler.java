@@ -45,8 +45,7 @@ public class ClientHandler implements Runnable {
                 String message;
                 if ((message = bufferedReader.readLine()) != null){
                     ClientMessage clientMessage = mapper.decode(message, ClientMessage.class);
-                    PrintWriter printWriter = connectionsManagerImpl.findConnectionBySocket(socket).getPrintWriter();
-                    dispatcherService.handle(clientMessage, socket, printWriter);
+                    dispatcherService.handle(clientMessage, socket, connectionsManagerImpl.findConnectionBySocket(socket).getPrintWriter());
                 }
             }
         } catch (IOException exception) {
