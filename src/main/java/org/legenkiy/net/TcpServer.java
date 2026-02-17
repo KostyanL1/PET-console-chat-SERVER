@@ -3,13 +3,13 @@ package org.legenkiy.net;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.legenkiy.connection.ConnectionsManager;
+import org.legenkiy.connection.ConnectionsManagerImpl;
 import org.legenkiy.factory.ClientHandlerFactory;
 import org.legenkiy.models.ActiveConnection;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -22,7 +22,7 @@ public class TcpServer implements Runnable {
     private static final Logger LOGGER = LogManager.getLogger(TcpServer.class);
 
 
-    private final ConnectionsManager connectionsManager;
+    private final ConnectionsManagerImpl connectionsManagerImpl;
     private final ClientHandlerFactory clientHandlerFactory;
 
 
@@ -42,23 +42,25 @@ public class TcpServer implements Runnable {
 
 
     public void handleConnection(Socket clientSocket) throws ConnectException {
-            try {
-                connect(clientSocket);
-                Thread thread = new Thread(clientHandlerFactory.create(clientSocket));
-                thread.start();
-            } catch (IOException e) {
-                LOGGER.info("Connection lost with socket {}", clientSocket.getRemoteSocketAddress());
-                throw new ConnectException("Connection lost");
-            }
+        try {
+            connect(clientSocket);
+            Thread thread = new Thread(clientHandlerFactory.create(clientSocket));
+            thread.start();
+        } catch (IOException e) {
+            LOGGER.info("Connection lost with socket {}", clientSocket.getRemoteSocketAddress());
+            throw new ConnectException("Connection lost");
+        }
     }
 
 
-    private void connect(Socket clientSocket) throws ConnectException {
+    private void connect(Socket clientSocket) throws IOException {
         if (clientSocket.isConnected()) {
             ActiveConnection activeConnection = ActiveConnection.builder()
                     .connectedAt(LocalDateTime.now())
-                    .socket(clientSocket).build();
-            connectionsManager.addNewConnection(activeConnection);
+                    .socket(clientSocket)
+                    .printWriter(new PrintWriter(clientSocket.getOutputStream(), true))
+                    .build();
+            connectionsManagerImpl.addNewConnection(activeConnection);
             LOGGER.info("Connected socket {}", clientSocket);
         } else {
             LOGGER.warn("Connection failed with socket {}", clientSocket);

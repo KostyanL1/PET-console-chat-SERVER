@@ -5,7 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.legenkiy.api.service.AuthService;
 import org.legenkiy.api.service.ChatService;
-import org.legenkiy.connection.ConnectionsManager;
+import org.legenkiy.connection.ConnectionsManagerImpl;
 import org.legenkiy.mapper.MessageMapper;
 import org.legenkiy.protocol.message.ClientMessage;
 import org.legenkiy.protocol.message.ServerMessage;
@@ -20,7 +20,7 @@ import java.net.Socket;
 public class ChatServiceImpl implements ChatService {
     private final static Logger LOGGER = LogManager.getLogger(ChatServiceImpl.class);
 
-    private final ConnectionsManager connectionsManager;
+    private final ConnectionsManagerImpl connectionsManagerImpl;
     private final MessageMapper mapper;
     private final AuthService authService;
 
@@ -29,7 +29,7 @@ public class ChatServiceImpl implements ChatService {
             if (authService.isAuthenticate(clientSocket)) {
                 System.out.println(clientMessage.getFrom());
                 System.out.println(clientMessage.getTo());
-                Socket recipientSocket = connectionsManager.findConnectionByUsername(clientMessage.getTo()).getSocket();
+                Socket recipientSocket = connectionsManagerImpl.findConnectionByUsername(clientMessage.getTo()).getSocket();
                 System.out.println(recipientSocket);
                 try (PrintWriter recipientPrintWriter = new PrintWriter(recipientSocket.getOutputStream(), true)){
                     recipientPrintWriter.println(mapper.encode(
