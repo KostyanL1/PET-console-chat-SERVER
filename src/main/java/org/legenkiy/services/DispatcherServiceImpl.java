@@ -9,7 +9,6 @@ import org.legenkiy.api.service.AuthService;
 import org.legenkiy.api.service.ChatService;
 import org.legenkiy.api.service.DispatcherService;
 import org.legenkiy.mapper.MessageMapper;
-import org.legenkiy.protocol.dtos.AuthDto;
 import org.legenkiy.protocol.message.ClientMessage;
 import org.legenkiy.protocol.enums.MessageType;
 import org.legenkiy.protocol.message.ServerMessage;
@@ -31,7 +30,7 @@ public class DispatcherServiceImpl implements DispatcherService {
 
     @Override
     public void handle(ClientMessage clientMessage, Socket socket, PrintWriter printWriter) throws JsonProcessingException {
-        LOGGER.info("Handling request from {}" , socket.getRemoteSocketAddress());
+        LOGGER.info("Handling request from {}", socket.getRemoteSocketAddress());
         MessageType messageType = clientMessage.getMessageType();
         switch (messageType) {
             case HELLO -> {

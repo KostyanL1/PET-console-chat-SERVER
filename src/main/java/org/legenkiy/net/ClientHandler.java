@@ -15,9 +15,7 @@ import org.springframework.stereotype.Component;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
-
 
 
 @Component
@@ -43,7 +41,7 @@ public class ClientHandler implements Runnable {
             while (true) {
                 System.out.println("waiting command for " + socket.getRemoteSocketAddress());
                 String message;
-                if ((message = bufferedReader.readLine()) != null){
+                if ((message = bufferedReader.readLine()) != null) {
                     ClientMessage clientMessage = mapper.decode(message, ClientMessage.class);
                     dispatcherService.handle(clientMessage, socket, connectionsManagerImpl.findConnectionBySocket(socket).getPrintWriter());
                 }
