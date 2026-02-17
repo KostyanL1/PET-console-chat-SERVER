@@ -1,7 +1,6 @@
 package org.legenkiy.connection;
 
 
-
 import org.legenkiy.api.connection.ConnectionManager;
 import org.legenkiy.enums.ClientState;
 import org.legenkiy.exceptions.ObjectNotFoundException;
@@ -29,7 +28,7 @@ public class ConnectionsManagerImpl implements ConnectionManager {
             activeConnection.setId(index.incrementAndGet());
             activeConnection.setClientState(ClientState.NEW);
             this.activeConnectionList.add(activeConnection);
-        }else {
+        } else {
             throw new ConnectException("Connection exist");
         }
     }
@@ -62,6 +61,7 @@ public class ConnectionsManagerImpl implements ConnectionManager {
                 }
         );
     }
+
     @Override
     public synchronized void authenticate(Socket socket, String username) {
         ActiveConnection connection = findConnectionBySocket(socket);
@@ -71,13 +71,13 @@ public class ConnectionsManagerImpl implements ConnectionManager {
 
     @Override
     public synchronized ActiveConnection findConnectionBySocket(Socket socket) {
-            return this.activeConnectionList.stream().filter(
-                    activeConnection -> {
-                        String socketAsConnection = activeConnection.getSocket().getRemoteSocketAddress().toString();
-                        String socketAsArgument = socket.getRemoteSocketAddress().toString();
-                        return socketAsConnection.contentEquals(socketAsArgument);
-                    }).findFirst().orElseThrow(
-                    () -> new ObjectNotFoundException("Connection not found"));
+        return this.activeConnectionList.stream().filter(
+                activeConnection -> {
+                    String socketAsConnection = activeConnection.getSocket().getRemoteSocketAddress().toString();
+                    String socketAsArgument = socket.getRemoteSocketAddress().toString();
+                    return socketAsConnection.contentEquals(socketAsArgument);
+                }).findFirst().orElseThrow(
+                () -> new ObjectNotFoundException("Connection not found"));
     }
 
     @Override

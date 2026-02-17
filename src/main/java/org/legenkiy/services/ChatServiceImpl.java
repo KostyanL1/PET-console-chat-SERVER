@@ -27,33 +27,33 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public void processMessage(ClientMessage clientMessage, Socket clientSocket, PrintWriter clientPrintWriter) throws JsonProcessingException {
-            if (authService.isAuthenticate(clientSocket)) {
-                System.out.println(clientMessage.getFrom());
-                System.out.println(clientMessage.getTo());
-                connectionsManagerImpl.findConnectionByUsername(clientMessage.getTo()).getPrintWriter().println(
-                        mapper.encode(
-                                ServerMessage
-                                        .chat(
-                                                clientMessage.getFrom(),
-                                                clientMessage.getContent()
-                                        )
-                        )
-                );
-            }else {
-                LOGGER.info("Sending failed. Authentication needed for client {}", clientSocket.getRemoteSocketAddress());
-                clientPrintWriter.println("Authentication needed");
-            }
+        if (authService.isAuthenticate(clientSocket)) {
+            System.out.println(clientMessage.getFrom());
+            System.out.println(clientMessage.getTo());
+            connectionsManagerImpl.findConnectionByUsername(clientMessage.getTo()).getPrintWriter().println(
+                    mapper.encode(
+                            ServerMessage
+                                    .chat(
+                                            clientMessage.getFrom(),
+                                            clientMessage.getContent()
+                                    )
+                    )
+            );
+        } else {
+            LOGGER.info("Sending failed. Authentication needed for client {}", clientSocket.getRemoteSocketAddress());
+            clientPrintWriter.println("Authentication needed");
+        }
     }
 
 
-        @Override
-        public void processMessage (ServerMessage serverMessage){
+    @Override
+    public void processMessage(ServerMessage serverMessage) {
 
-        }
+    }
 
-        @Override
-        public void processMessage (ClientMessage clientMessage, ServerMessage serverMessage){
+    @Override
+    public void processMessage(ClientMessage clientMessage, ServerMessage serverMessage) {
 
-        }
+    }
 }
 

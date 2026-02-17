@@ -53,10 +53,10 @@ public class UserServiceImpl implements UserService {
         String username;
         String password;
         List<Chat> chats;
-        if ((username = userDto.getUsername()) != null){
+        if ((username = userDto.getUsername()) != null) {
             user.setUsername(username);
         }
-        if ((password = userDto.getPassword()) != null){
+        if ((password = userDto.getPassword()) != null) {
             user.setPassword(password);
         }
         if (!(chats = userDto.getChats()).isEmpty()) {

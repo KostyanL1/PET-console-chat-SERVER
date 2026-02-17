@@ -29,41 +29,41 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public void register(Socket socket, AuthDto authDto){
-        if (!isAuthenticate(socket)){
-            if (!isRegistered(authDto.getUsername())){
+    public void register(Socket socket, AuthDto authDto) {
+        if (!isAuthenticate(socket)) {
+            if (!isRegistered(authDto.getUsername())) {
                 UserDto userDto = new UserDto();
                 userDto.setUsername(authDto.getUsername());
                 userDto.setPassword(BCrypt.hashpw(authDto.getPassword(), BCrypt.gensalt()));
                 userService.save(userDto);
                 connectionsManagerImpl.authenticate(socket, authDto.getUsername());
-            }else {
+            } else {
                 LOGGER.info("This username already exist {}", authDto.getUsername());
                 throw new AuthException("This username already exist " + authDto.getUsername());
             }
-        }else {
+        } else {
             LOGGER.info("This socket authenticated {}", socket.getRemoteSocketAddress());
             throw new AuthException("This socket authenticated " + socket.getRemoteSocketAddress());
         }
 
     }
-    
+
     @Override
     public void login(Socket socket, AuthDto authDto) {
-        if (!isAuthenticate(socket)){
+        if (!isAuthenticate(socket)) {
             String username = authDto.getUsername();
-            if (isRegistered(username)){
-                if (isPasswordCorrect(authDto)){
+            if (isRegistered(username)) {
+                if (isPasswordCorrect(authDto)) {
                     connectionsManagerImpl.authenticate(socket, authDto.getUsername());
-                }else {
+                } else {
                     LOGGER.info("Password incorrect for username : {}", username);
                     throw new AuthException("Password incorrect for username : " + username);
                 }
-            }else {
+            } else {
                 LOGGER.info("This username doesn`t exist {}", username);
                 throw new AuthException("This username doesn`t exist " + username);
             }
-        }else {
+        } else {
             LOGGER.info("This socket authenticated {}", socket.getRemoteSocketAddress());
             throw new AuthException("This socket authenticated " + socket.getRemoteSocketAddress());
         }
@@ -76,16 +76,16 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public boolean isRegistered(String username){
+    public boolean isRegistered(String username) {
         try {
             userService.findByUsername(username);
             return true;
-        }catch (ObjectNotFoundException e){
+        } catch (ObjectNotFoundException e) {
             return false;
         }
     }
 
-    private boolean isPasswordCorrect(AuthDto authDto){
+    private boolean isPasswordCorrect(AuthDto authDto) {
         return BCrypt.checkpw(authDto.getPassword(), userService.findByUsername(authDto.getUsername()).getPassword());
     }
 }
