@@ -34,23 +34,13 @@ public class DispatcherServiceImpl implements DispatcherService {
         MessageType messageType = clientMessage.getMessageType();
         switch (messageType) {
             case HELLO -> {
-
-            }
-            case OK -> {
-
+                authService.handShake(clientMessage);
             }
             case PM -> {
-                System.out.println("process");
                 chatService.processMessage(clientMessage, socket);
             }
-            case MSG -> {
-
-            }
-            case WHO -> {
-
-            }
             case ERROR -> {
-
+                LOGGER.info(clientMessage.getContent());
             }
             case LOGIN -> {
                 authService.login(socket, clientMessage.getAuthDto());
@@ -61,7 +51,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                 printWriter.println(messageMapper.encode(ServerMessage.ok("registered : " + clientMessage.getAuthDto().getUsername())));
             }
             default -> {
-                printWriter.println("[UNKNOWN COMMAND]");
+                printWriter.println(messageMapper.encode(ServerMessage.error("Unknown command")));
             }
         }
     }

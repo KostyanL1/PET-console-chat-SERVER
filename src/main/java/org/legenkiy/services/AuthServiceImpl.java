@@ -12,6 +12,7 @@ import org.legenkiy.exceptions.AuthException;
 import org.legenkiy.exceptions.ObjectNotFoundException;
 import org.legenkiy.models.ActiveConnection;
 import org.legenkiy.protocol.dtos.AuthDto;
+import org.legenkiy.protocol.message.ClientMessage;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
@@ -84,6 +85,13 @@ public class AuthServiceImpl implements AuthService {
             return false;
         }
     }
+
+    @Override
+    public void handShake(ClientMessage clientMessage){
+
+    }
+
+
 
     private boolean isPasswordCorrect(AuthDto authDto) {
         return BCrypt.checkpw(authDto.getPassword(), userService.findByUsername(authDto.getUsername()).getPassword());

@@ -7,7 +7,6 @@ import org.legenkiy.exceptions.ObjectNotFoundException;
 import org.legenkiy.models.ActiveConnection;
 import org.springframework.stereotype.Component;
 
-import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.util.List;
