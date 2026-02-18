@@ -38,24 +38,26 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()))) {
-            while (true) {
+            String message;
+            while ((message = bufferedReader.readLine()) != null) {
                 System.out.println("waiting command for " + socket.getRemoteSocketAddress());
-                String message;
-                if ((message = bufferedReader.readLine()) != null) {
-                    ClientMessage clientMessage = mapper.decode(message, ClientMessage.class);
-                    dispatcherService.handle(clientMessage, socket, connectionsManagerImpl.findConnectionBySocket(socket).getPrintWriter());
-                }
+                ClientMessage clientMessage = mapper.decode(message, ClientMessage.class);
+                dispatcherService.handle(clientMessage, socket, connectionsManagerImpl.findConnectionBySocket(socket).getPrintWriter());
             }
-        } catch (IOException exception) {
-            System.out.println(exception);
-            try {
-                socket.close();
-                connectionsManagerImpl.removeConnection(socket);
-                LOGGER.info("Socket closed {}", socket);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        } catch (Exception exception) {
+            LOGGER.info(exception);
+        } finally {
+            closeResource();
         }
+    }
 
+    public void closeResource() {
+        try {
+            socket.close();
+            connectionsManagerImpl.removeConnection(socket);
+            LOGGER.info("Socket closed {}", socket);
+        } catch (IOException e) {
+            LOGGER.info("Failed to close {}", socket);
+        }
     }
 }

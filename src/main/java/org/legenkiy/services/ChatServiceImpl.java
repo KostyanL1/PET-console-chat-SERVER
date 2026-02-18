@@ -26,7 +26,7 @@ public class ChatServiceImpl implements ChatService {
     private final AuthService authService;
 
     @Override
-    public void processMessage(ClientMessage clientMessage, Socket clientSocket, PrintWriter clientPrintWriter) throws JsonProcessingException {
+    public void processMessage(ClientMessage clientMessage, Socket clientSocket) throws JsonProcessingException {
         if (authService.isAuthenticate(clientSocket)) {
             System.out.println(clientMessage.getFrom());
             System.out.println(clientMessage.getTo());
@@ -41,7 +41,9 @@ public class ChatServiceImpl implements ChatService {
             );
         } else {
             LOGGER.info("Sending failed. Authentication needed for client {}", clientSocket.getRemoteSocketAddress());
-            clientPrintWriter.println("Authentication needed");
+            connectionsManagerImpl.findConnectionBySocket(
+                    clientSocket)
+                    .getPrintWriter().println(ServerMessage.error("Authentication needed"));
         }
     }
 

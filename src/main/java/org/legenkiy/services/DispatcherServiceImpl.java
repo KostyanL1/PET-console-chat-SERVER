@@ -41,7 +41,7 @@ public class DispatcherServiceImpl implements DispatcherService {
             }
             case PM -> {
                 System.out.println("process");
-                chatService.processMessage(clientMessage, socket, printWriter);
+                chatService.processMessage(clientMessage, socket);
             }
             case MSG -> {
 
