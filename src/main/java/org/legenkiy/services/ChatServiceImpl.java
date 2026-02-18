@@ -41,7 +41,7 @@ public class ChatServiceImpl implements ChatService {
             );
         } else {
             LOGGER.info("Sending failed. Authentication needed for client {}", clientSocket.getRemoteSocketAddress());
-            clientPrintWriter.println("Authentication needed");
+            clientPrintWriter.println(ServerMessage.error("Authentication needed"));
         }
     }
 
