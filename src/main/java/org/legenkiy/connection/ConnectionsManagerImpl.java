@@ -34,13 +34,11 @@ public class ConnectionsManagerImpl implements ConnectionManager {
 
     @Override
     public ActiveConnection findConnectionByUsername(String username) {
-        activeConnectionList.forEach(System.out::println);
-        ActiveConnection activeConnection = this.activeConnectionList.stream().filter(
-                active ->
-                        active.getUsername().equals(username)
-        ).findFirst().orElseThrow(() -> new RuntimeException("Connection not found"));
-        System.out.println(activeConnection);
-        return activeConnection;
+        String searchName = String.valueOf(username);
+        return this.activeConnectionList.stream()
+                .filter(active -> String.valueOf(active.getUsername()).equals(searchName))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Connection not found for username: " + username));
     }
 
     @Override

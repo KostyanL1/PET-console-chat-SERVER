@@ -1,6 +1,7 @@
 package org.legenkiy.net;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 
 import org.apache.logging.log4j.LogManager;
@@ -16,6 +17,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.net.SocketException;
 
 
 @Component
@@ -37,27 +39,30 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
-        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()))) {
-            String message;
-            while ((message = bufferedReader.readLine()) != null) {
-                System.out.println("waiting command for " + socket.getRemoteSocketAddress());
-                ClientMessage clientMessage = mapper.decode(message, ClientMessage.class);
-                dispatcherService.handle(clientMessage, socket, connectionsManagerImpl.findConnectionBySocket(socket).getPrintWriter());
+        while (true) {
+            try {
+                while (true) {
+                    BufferedReader bufferedReader = connectionsManagerImpl.findConnectionBySocket(socket).getBufferedReader();
+                    String message;
+                    while ((message = bufferedReader.readLine()) != null) {
+                        System.out.println("waiting command for " + socket.getRemoteSocketAddress());
+                        ClientMessage clientMessage = mapper.decode(message, ClientMessage.class);
+                        dispatcherService.handle(clientMessage, socket, connectionsManagerImpl.findConnectionBySocket(socket).getPrintWriter());
+                    }
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-        } catch (Exception exception) {
-            LOGGER.info(exception);
-        } finally {
-            closeResource();
-        }
-    }
 
-    public void closeResource() {
-        try {
-            socket.close();
-            connectionsManagerImpl.removeConnection(socket);
-            LOGGER.info("Socket closed {}", socket);
-        } catch (IOException e) {
-            LOGGER.info("Failed to close {}", socket);
         }
     }
-}
+        public void closeResource () {
+            try {
+                socket.close();
+                connectionsManagerImpl.removeConnection(socket);
+                LOGGER.info("Socket closed {}", socket);
+            } catch (IOException e) {
+                LOGGER.info("Failed to close {}", socket);
+            }
+        }
+    }

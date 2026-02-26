@@ -8,7 +8,9 @@ import org.legenkiy.factory.ClientHandlerFactory;
 import org.legenkiy.models.ActiveConnection;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.ServerSocket;
@@ -59,6 +61,7 @@ public class TcpServer implements Runnable {
                     .connectedAt(LocalDateTime.now())
                     .socket(clientSocket)
                     .printWriter(new PrintWriter(clientSocket.getOutputStream(), true))
+                    .bufferedReader(new BufferedReader(new InputStreamReader(clientSocket.getInputStream())))
                     .build();
             connectionsManagerImpl.addNewConnection(activeConnection);
             LOGGER.info("Connected socket {}", clientSocket);

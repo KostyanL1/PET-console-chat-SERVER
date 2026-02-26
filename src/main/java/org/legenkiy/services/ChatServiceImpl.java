@@ -12,8 +12,6 @@ import org.legenkiy.protocol.message.ClientMessage;
 import org.legenkiy.protocol.message.ServerMessage;
 import org.springframework.stereotype.Service;
 
-
-import java.io.PrintWriter;
 import java.net.Socket;
 
 @Service
@@ -25,11 +23,27 @@ public class ChatServiceImpl implements ChatService {
     private final MessageMapper mapper;
     private final AuthService authService;
 
+
+    @Override
+    public void handleChatRequest(ClientMessage clientMessage, Socket clientSocket) {
+        try {
+            if (authService.isAuthenticate(clientSocket)) {
+                String senderUsername = clientMessage.getFrom();
+                connectionsManagerImpl.findConnectionByUsername(senderUsername).getPrintWriter().println(
+                        mapper.encode(
+                                ServerMessage.requestChat(senderUsername)
+                        )
+                );
+            }
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
     @Override
     public void processMessage(ClientMessage clientMessage, Socket clientSocket) throws JsonProcessingException {
         if (authService.isAuthenticate(clientSocket)) {
-            System.out.println(clientMessage.getFrom());
-            System.out.println(clientMessage.getTo());
             connectionsManagerImpl.findConnectionByUsername(clientMessage.getTo()).getPrintWriter().println(
                     mapper.encode(
                             ServerMessage
@@ -42,7 +56,7 @@ public class ChatServiceImpl implements ChatService {
         } else {
             LOGGER.info("Sending failed. Authentication needed for client {}", clientSocket.getRemoteSocketAddress());
             connectionsManagerImpl.findConnectionBySocket(
-                    clientSocket)
+                            clientSocket)
                     .getPrintWriter().println(ServerMessage.error("Authentication needed"));
         }
     }

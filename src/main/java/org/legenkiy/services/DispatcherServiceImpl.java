@@ -37,6 +37,12 @@ public class DispatcherServiceImpl implements DispatcherService {
                 authService.handShake(clientMessage);
             }
             case PM -> {
+                chatService.handleChatRequest(clientMessage, socket);
+            }
+            case ACCEPTED -> {
+
+            }
+            case MSG -> {
                 chatService.processMessage(clientMessage, socket);
             }
             case ERROR -> {
@@ -44,11 +50,11 @@ public class DispatcherServiceImpl implements DispatcherService {
             }
             case LOGIN -> {
                 authService.login(socket, clientMessage.getAuthDto());
-                printWriter.println(messageMapper.encode(ServerMessage.ok("authenticated : " + clientMessage.getAuthDto().getUsername())));
+                printWriter.println(messageMapper.encode(ServerMessage.ok("authenticated: " + clientMessage.getAuthDto().getUsername())));
             }
             case REGISTER -> {
                 authService.register(socket, clientMessage.getAuthDto());
-                printWriter.println(messageMapper.encode(ServerMessage.ok("registered : " + clientMessage.getAuthDto().getUsername())));
+                printWriter.println(messageMapper.encode(ServerMessage.ok("registered: " + clientMessage.getAuthDto().getUsername())));
             }
             default -> {
                 printWriter.println(messageMapper.encode(ServerMessage.error("Unknown command")));
