@@ -8,6 +8,8 @@ import java.net.Socket;
 
 public interface ChatService {
 
+    void handleChatRequest(ClientMessage clientMessage, Socket clientSocket);
+
     void processMessage(ClientMessage clientMessage, Socket clientSocket) throws JsonProcessingException;
 
     void processMessage(ServerMessage serverMessage);

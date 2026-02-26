@@ -34,34 +34,30 @@ public class DispatcherServiceImpl implements DispatcherService {
         MessageType messageType = clientMessage.getMessageType();
         switch (messageType) {
             case HELLO -> {
-
-            }
-            case OK -> {
-
+                authService.handShake(clientMessage);
             }
             case PM -> {
-                System.out.println("process");
-                chatService.processMessage(clientMessage, socket);
+                chatService.handleChatRequest(clientMessage, socket);
+            }
+            case ACCEPTED -> {
+
             }
             case MSG -> {
-
-            }
-            case WHO -> {
-
+                chatService.processMessage(clientMessage, socket);
             }
             case ERROR -> {
-
+                LOGGER.info(clientMessage.getContent());
             }
             case LOGIN -> {
                 authService.login(socket, clientMessage.getAuthDto());
-                printWriter.println(messageMapper.encode(ServerMessage.ok("authenticated : " + clientMessage.getAuthDto().getUsername())));
+                printWriter.println(messageMapper.encode(ServerMessage.ok("authenticated: " + clientMessage.getAuthDto().getUsername())));
             }
             case REGISTER -> {
                 authService.register(socket, clientMessage.getAuthDto());
-                printWriter.println(messageMapper.encode(ServerMessage.ok("registered : " + clientMessage.getAuthDto().getUsername())));
+                printWriter.println(messageMapper.encode(ServerMessage.ok("registered: " + clientMessage.getAuthDto().getUsername())));
             }
             default -> {
-                printWriter.println("[UNKNOWN COMMAND]");
+                printWriter.println(messageMapper.encode(ServerMessage.error("Unknown command")));
             }
         }
     }
