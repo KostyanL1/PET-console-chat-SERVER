@@ -30,8 +30,8 @@ public class ChatDaoImpl implements ChatDao {
     }
 
     @Override
-    public List<Chat> findAllByMembers(List<User> users){
-        try (Session session = sessionFactory.openSession()){
+    public List<Chat> findAllByMembers(List<User> users) {
+        try (Session session = sessionFactory.openSession()) {
             return session.createQuery("from Chat c WHERE c.members=:members", Chat.class)
                     .setParameter("members", users)
                     .list();

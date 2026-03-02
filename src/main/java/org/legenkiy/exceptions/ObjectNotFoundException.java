@@ -1,7 +1,7 @@
 package org.legenkiy.exceptions;
 
-public class ObjectNotFoundException extends RuntimeException{
-    public ObjectNotFoundException(String message){
+public class ObjectNotFoundException extends RuntimeException {
+    public ObjectNotFoundException(String message) {
         super(message);
     }
 }
