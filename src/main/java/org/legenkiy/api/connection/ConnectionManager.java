@@ -7,11 +7,11 @@ import java.net.Socket;
 
 public interface ConnectionManager {
 
-    void addNewConnection(ActiveConnection activeConnection) throws ConnectException;
+    void create(Socket clientSocket,  ActiveConnection activeConnection) throws ConnectException;
+
+    boolean isConnected(Socket socket);
 
     ActiveConnection findConnectionByUsername(String username);
-
-    boolean isAlreadyConnected(ActiveConnection activeConnection);
 
     ActiveConnection findConnectionById(Long id);
 
@@ -19,6 +19,6 @@ public interface ConnectionManager {
 
     ActiveConnection findConnectionBySocket(Socket socket);
 
-    ActiveConnection removeConnection(Socket socket);
+    ActiveConnection removeConnectionBySocket(Socket socket);
 
 }
