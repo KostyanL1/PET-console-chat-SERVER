@@ -11,6 +11,7 @@ import org.legenkiy.api.service.DispatcherService;
 import org.legenkiy.mapper.MessageMapper;
 import org.legenkiy.protocol.message.ClientMessage;
 import org.legenkiy.protocol.enums.MessageType;
+import org.legenkiy.protocol.message.Envelope;
 import org.legenkiy.protocol.message.ServerMessage;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +30,7 @@ public class DispatcherServiceImpl implements DispatcherService {
     private final MessageMapper messageMapper;
 
     @Override
-    public void handle(ClientMessage clientMessage, Socket socket, PrintWriter printWriter) throws JsonProcessingException {
+    public void handle(Envelope envelope, Socket socket, PrintWriter printWriter) throws JsonProcessingException {
         LOGGER.info("Handling request from {}", socket.getRemoteSocketAddress());
         MessageType messageType = clientMessage.getMessageType();
         switch (messageType) {
