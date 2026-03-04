@@ -22,8 +22,8 @@ public class UserDaoImpl implements org.legenkiy.api.dao.UserDao {
     private final SessionFactory sessionFactory;
 
     @Override
-    public Optional<User> findByUsername(String username){
-        try (Session session = sessionFactory.openSession()){
+    public Optional<User> findByUsername(String username) {
+        try (Session session = sessionFactory.openSession()) {
             return session.createQuery("FROM User u WHERE u.username=:username", User.class)
                     .setParameter("username", username)
                     .uniqueResultOptional();
@@ -97,13 +97,13 @@ public class UserDaoImpl implements org.legenkiy.api.dao.UserDao {
     }
 
     @Override
-    public void deleteByUsername(String username){
+    public void deleteByUsername(String username) {
         Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()){
+        try (Session session = sessionFactory.openSession()) {
             User user = session.find(User.class, username);
             session.remove(user);
             transaction.commit();
-        }catch (Exception e){
+        } catch (Exception e) {
             LOGGER.info("DELETE USER FAILED username {}, {}", username, e);
         }
 

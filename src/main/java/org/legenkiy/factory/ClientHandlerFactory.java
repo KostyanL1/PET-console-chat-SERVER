@@ -14,7 +14,7 @@ public class ClientHandlerFactory {
 
     private final ObjectProvider<ClientHandler> clientHandlerObjectProvider;
 
-    public ClientHandler create(Socket socket){
+    public ClientHandler create(Socket socket) {
         ClientHandler clientHandler = clientHandlerObjectProvider.getObject();
         clientHandler.init(socket);
         return clientHandler;

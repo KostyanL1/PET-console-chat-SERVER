@@ -56,13 +56,14 @@ public class ClientHandler implements Runnable {
 
         }
     }
-        public void closeResource () {
-            try {
-                socket.close();
-                connectionsManagerImpl.removeConnection(socket);
-                LOGGER.info("Socket closed {}", socket);
-            } catch (IOException e) {
-                LOGGER.info("Failed to close {}", socket);
-            }
+
+    public void closeResource() {
+        try {
+            socket.close();
+            connectionsManagerImpl.removeConnection(socket);
+            LOGGER.info("Socket closed {}", socket);
+        } catch (IOException e) {
+            LOGGER.info("Failed to close {}", socket);
         }
     }
+}

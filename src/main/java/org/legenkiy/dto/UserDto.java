@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDto {
-    
+
     private String username;
     private String password;
     private List<Chat> chats;

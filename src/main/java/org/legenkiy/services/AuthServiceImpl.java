@@ -87,10 +87,9 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void handShake(ClientMessage clientMessage){
+    public void handShake(ClientMessage clientMessage) {
 
     }
-
 
 
     private boolean isPasswordCorrect(AuthDto authDto) {
