@@ -1,6 +1,7 @@
 package org.legenkiy.services;
 
 import lombok.RequiredArgsConstructor;
+import org.legenkiy.api.service.SenderService;
 import org.legenkiy.mapper.MessageMapper;
 import org.legenkiy.protocol.message.Envelope;
 import org.springframework.stereotype.Service;
@@ -11,13 +12,14 @@ import java.net.Socket;
 
 @Service
 @RequiredArgsConstructor
-public class SenderService {
+public class SenderServiceImpl implements SenderService {
 
     private final MessageMapper mapper;
 
-    public void send(Socket socket, Envelope envelope){
+    @Override
+    public void send(Socket socket, Envelope envelope) {
         try {
-            PrintWriter printWriter =  new PrintWriter(socket.getOutputStream(), true);
+            PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true);
             printWriter.println(
                     mapper.encode(envelope)
             );

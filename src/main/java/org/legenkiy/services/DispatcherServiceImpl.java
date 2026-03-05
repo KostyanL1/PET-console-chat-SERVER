@@ -1,18 +1,16 @@
 package org.legenkiy.services;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.legenkiy.api.service.AuthService;
 import org.legenkiy.api.service.ChatService;
 import org.legenkiy.api.service.DispatcherService;
+import org.legenkiy.api.service.SenderService;
 import org.legenkiy.mapper.MessageMapper;
-import org.legenkiy.protocol.message.ClientMessage;
 import org.legenkiy.protocol.enums.MessageType;
 import org.legenkiy.protocol.message.Envelope;
-import org.legenkiy.protocol.message.ServerMessage;
 import org.springframework.stereotype.Service;
 
 
@@ -25,41 +23,46 @@ public class DispatcherServiceImpl implements DispatcherService {
 
     private final static Logger LOGGER = LogManager.getLogger(DispatcherServiceImpl.class);
 
-    private final ChatService chatService;
     private final AuthService authService;
-    private final MessageMapper messageMapper;
+    private final SenderService senderService;
 
     @Override
-    public void handle(Envelope envelope, Socket socket, PrintWriter printWriter) throws JsonProcessingException {
-        LOGGER.info("Handling request from {}", socket.getRemoteSocketAddress());
-        MessageType messageType = clientMessage.getMessageType();
-        switch (messageType) {
+    public void handle(Envelope envelope, Socket socket, PrintWriter printWriter) {
+        switch (envelope.getType()) {
             case HELLO -> {
-                authService.handShake(clientMessage);
+                try {
+                    authService.handshake(socket, envelope);
+                } catch (Exception e) {
+                    handleError(socket, e);
+                }
             }
-            case PM -> {
-                chatService.handleChatRequest(clientMessage, socket);
+            case AUTH_REGISTER -> {
+                try {
+                    authService.register(socket, envelope);
+                } catch (Exception e) {
+                    handleError(socket, e);
+                }
             }
-            case ACCEPTED -> {
-
-            }
-            case MSG -> {
-                chatService.processMessage(clientMessage, socket);
-            }
-            case ERROR -> {
-                LOGGER.info(clientMessage.getContent());
-            }
-            case LOGIN -> {
-                authService.login(socket, clientMessage.getAuthDto());
-                printWriter.println(messageMapper.encode(ServerMessage.ok("authenticated: " + clientMessage.getAuthDto().getUsername())));
-            }
-            case REGISTER -> {
-                authService.register(socket, clientMessage.getAuthDto());
-                printWriter.println(messageMapper.encode(ServerMessage.ok("registered: " + clientMessage.getAuthDto().getUsername())));
+            case AUTH_LOGIN -> {
+                try {
+                    authService.login(socket, envelope);
+                } catch (Exception e) {
+                    handleError(socket, e);
+                }
             }
             default -> {
-                printWriter.println(messageMapper.encode(ServerMessage.error("Unknown command")));
+                handleError(socket, new Exception("Unknown request"));
             }
         }
     }
+
+
+    public void handleError(Socket socket, Exception e) {
+        Envelope env = new Envelope();
+        env.setType(MessageType.ERROR);
+        env.setPayload(e.getMessage());
+        senderService.send(socket, env);
+        LOGGER.error(e.getMessage());
+    }
+
 }
