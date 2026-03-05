@@ -1,7 +1,7 @@
 package org.legenkiy.net;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import lombok.RequiredArgsConstructor;
 
 import org.apache.logging.log4j.LogManager;
@@ -9,15 +9,15 @@ import org.apache.logging.log4j.Logger;
 import org.legenkiy.api.service.DispatcherService;
 import org.legenkiy.connection.ConnectionsManagerImpl;
 import org.legenkiy.mapper.MessageMapper;
-import org.legenkiy.protocol.message.ClientMessage;
+import org.legenkiy.protocol.message.Envelope;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.SocketException;
 
 
 @Component
@@ -39,31 +39,31 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
-            try {
-                while (true) {
-                    BufferedReader bufferedReader = connectionsManagerImpl.findConnectionBySocket(socket).getBufferedReader();
-                    String message;
-                    while ((message = bufferedReader.readLine()) != null) {
-                        System.out.println("waiting command for " + socket.getRemoteSocketAddress());
-                        ClientMessage clientMessage = mapper.decode(message, ClientMessage.class);
-                        dispatcherService.handle(clientMessage, socket, connectionsManagerImpl.findConnectionBySocket(socket).getPrintWriter());
-                    }
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-    }
-
-    public void closeResource() {
+        if (this.socket == null) throw new IllegalArgumentException("Socket haven't been initialized");
         try {
-            socket.close();
-            connectionsManagerImpl.removeConnection(socket);
-            LOGGER.info("Socket closed {}", socket);
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+            PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true);
+            String message;
+            while ((message = bufferedReader.readLine()) != null){
+                Envelope envelope;
+                try {
+                     envelope = mapper.decode(message, Envelope.class);
+                }catch (Exception e){
+                    LOGGER.error(e.getMessage());
+                    continue;
+                }
+                dispatcherService.handle(envelope, socket, printWriter);
+            }
         } catch (IOException e) {
-            LOGGER.info("Failed to close {}", socket);
+            LOGGER.error(e.getMessage());
+        } finally {
+            if (!this.socket.isClosed()){
+                try {
+                    this.socket.close();
+                    connectionsManagerImpl.removeConnectionBySocket(this.socket);
+                } catch (IOException ignored) {}
+            }
         }
     }
+
 }

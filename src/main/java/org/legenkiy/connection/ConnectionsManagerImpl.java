@@ -9,15 +9,10 @@ import org.legenkiy.enums.ClientState;
 import org.legenkiy.exceptions.AlreadyConnectedException;
 import org.legenkiy.exceptions.ObjectNotFoundException;
 import org.legenkiy.models.ActiveConnection;
-import org.legenkiy.protocol.enums.MessageType;
-import org.legenkiy.protocol.message.Envelope;
-import org.legenkiy.services.SenderService;
+import org.legenkiy.services.SenderServiceImpl;
 import org.springframework.stereotype.Component;
 
-import java.net.ConnectException;
 import java.net.Socket;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -32,7 +27,7 @@ public class ConnectionsManagerImpl implements ConnectionManager {
 
     private final AtomicLong index = new AtomicLong(0);
 
-    private final SenderService senderService;
+    private final SenderServiceImpl senderServiceImpl;
 
 
     @Override
@@ -42,7 +37,7 @@ public class ConnectionsManagerImpl implements ConnectionManager {
             activeConnection.setClientState(ClientState.NEW);
             this.activeConnectionBySocketMap.put(clientSocket, activeConnection);
         } else {
-            String message = "Connection with socket: " + senderService + " already connected!";
+            String message = "Connection with socket: " + senderServiceImpl + " already connected!";
             LOGGER.info(message);
             throw new AlreadyConnectedException(message);
         }
@@ -84,14 +79,13 @@ public class ConnectionsManagerImpl implements ConnectionManager {
     }
 
     @Override
-    public ActiveConnection removeConnectionBySocket(Socket socket) {
+    public void removeConnectionBySocket(Socket socket) {
         ActiveConnection activeConnection = findConnectionBySocket(socket);
         this.activeConnectionBySocketMap.remove(socket);
         String username = activeConnection.getUsername();
-        if (username != null){
+        if (username != null) {
             this.activeConnectionByUsernameMap.remove(username);
         }
-        return activeConnection;
     }
 
 

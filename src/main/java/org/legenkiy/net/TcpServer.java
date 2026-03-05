@@ -8,11 +8,9 @@ import org.legenkiy.exceptions.ConnectionException;
 import org.legenkiy.factory.ClientHandlerFactory;
 import org.legenkiy.models.ActiveConnection;
 import org.springframework.stereotype.Component;
-import java.io.BufferedReader;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.ConnectException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.LocalDateTime;
@@ -28,7 +26,6 @@ public class TcpServer implements Runnable {
 
     private final ConnectionsManagerImpl connectionsManagerImpl;
     private final ClientHandlerFactory clientHandlerFactory;
-
 
 
     @Override
@@ -59,18 +56,18 @@ public class TcpServer implements Runnable {
         } catch (IOException e) {
             LOGGER.info("Connection lost with socket {}", clientSocket.getRemoteSocketAddress());
             close(clientSocket);
-            throw new ConnectionException("Connection lost: "+ e.getMessage());
+            throw new ConnectionException("Connection lost: " + e.getMessage());
         }
     }
 
-    public void close(Socket socket){
+    public void close(Socket socket) {
         try {
-            if (!socket.isClosed()){
+            if (!socket.isClosed()) {
                 socket.close();
             }
         } catch (IOException e) {
             LOGGER.error("Socket closing failed, {}", socket.getRemoteSocketAddress());
-            throw new RuntimeException( e);
+            throw new RuntimeException(e);
         }
     }
 

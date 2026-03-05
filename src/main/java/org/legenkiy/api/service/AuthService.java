@@ -1,18 +1,21 @@
 package org.legenkiy.api.service;
 
 
+import org.legenkiy.protocol.message.Envelope;
+
 import java.net.Socket;
 
 public interface AuthService {
 
-    void register();
+    void register(Socket socket, Envelope envelope);
 
-    void login();
+    void login(Socket socket, Envelope envelope);
 
-    boolean isAuthenticate();
+    boolean isAuthenticated(Socket socket);
 
-    boolean isRegistered();
+    boolean isRegisteredUsername(String username);
 
-    void handShake();
+    void handshake(Socket socket, Envelope envelope);
+
 
 }
