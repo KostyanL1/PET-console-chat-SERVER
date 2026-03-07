@@ -17,34 +17,34 @@ import java.util.concurrent.atomic.AtomicLong;
 @Scope(value = "singleton")
 public class RequestContext {
 
-    private volatile List<ChatIncomingPayload> chatIncomingPayloads = new CopyOnWriteArrayList<>();
-    private AtomicLong index = new AtomicLong(0);
+    private static volatile List<ChatIncomingPayload> chatIncomingPayloads = new CopyOnWriteArrayList<>();
+    private static AtomicLong index = new AtomicLong(0);
 
 
-    public synchronized ChatIncomingPayload create(String from){
+    public static synchronized ChatIncomingPayload create(String from){
         ChatIncomingPayload chatIncomingPayload = new ChatIncomingPayload();
         chatIncomingPayload.setRequestId(index.incrementAndGet());
         chatIncomingPayload.setFrom(from);
-        this.chatIncomingPayloads.add(chatIncomingPayload);
+        chatIncomingPayloads.add(chatIncomingPayload);
         return chatIncomingPayload;
     }
 
-    public boolean isExist(Long id){
-        return this.chatIncomingPayloads.stream().anyMatch(
+    public static boolean isExist(Long id){
+        return chatIncomingPayloads.stream().anyMatch(
                 payload -> Objects.equals(payload.getRequestId(), id)
         );
     }
 
-    public ChatIncomingPayload findById(Long id){
-        return this.chatIncomingPayloads.stream().filter(
+    public static ChatIncomingPayload findById(Long id){
+        return chatIncomingPayloads.stream().filter(
                 payload -> Objects.equals(payload.getRequestId(), id)
         ).findFirst().orElseThrow(() -> new ObjectNotFoundException("Payload not found"));
     }
 
-    public synchronized void removeById(Long id){
+    public static synchronized void removeById(Long id){
         try {
             ChatIncomingPayload chatIncomingPayload = findById(id);
-            this.chatIncomingPayloads.remove(chatIncomingPayload);
+            chatIncomingPayloads.remove(chatIncomingPayload);
         }catch (Exception e){
             throw new RuntimeException("Failed to remove payload, " + e.getMessage());
         }
