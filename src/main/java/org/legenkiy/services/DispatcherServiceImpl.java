@@ -25,6 +25,7 @@ public class DispatcherServiceImpl implements DispatcherService {
 
     private final AuthService authService;
     private final SenderService senderService;
+    private final ChatService chatService;
 
     @Override
     public void handle(Envelope envelope, Socket socket, PrintWriter printWriter) {
@@ -49,6 +50,9 @@ public class DispatcherServiceImpl implements DispatcherService {
                 } catch (Exception e) {
                     handleError(socket, e);
                 }
+            }
+            case CHAT_REQUEST -> {
+
             }
             default -> {
                 handleError(socket, new Exception("Unknown request"));

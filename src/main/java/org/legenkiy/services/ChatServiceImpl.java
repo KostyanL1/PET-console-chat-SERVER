@@ -6,9 +6,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.legenkiy.api.service.AuthService;
 import org.legenkiy.api.service.ChatService;
+import org.legenkiy.api.service.SenderService;
 import org.legenkiy.connection.ConnectionsManagerImpl;
 import org.legenkiy.mapper.MessageMapper;
+import org.legenkiy.models.ActiveConnection;
+import org.legenkiy.protocol.dtos.ChatIncomingPayload;
+import org.legenkiy.protocol.dtos.ChatRequestPayload;
 import org.legenkiy.protocol.message.ClientMessage;
+import org.legenkiy.protocol.message.Envelope;
 import org.legenkiy.protocol.message.ServerMessage;
 import org.springframework.stereotype.Service;
 
@@ -22,20 +27,24 @@ public class ChatServiceImpl implements ChatService {
     private final ConnectionsManagerImpl connectionsManagerImpl;
     private final MessageMapper mapper;
     private final AuthService authService;
+    private final SenderService senderService;
 
 
     @Override
-    public void handleChatRequest(ClientMessage clientMessage, Socket clientSocket) {
+    public void handleChatRequest(Socket clientSocket, Envelope envelope) {
         try {
-            if (authService.isAuthenticate(clientSocket)) {
-                String senderUsername = clientMessage.getFrom();
-                connectionsManagerImpl.findConnectionByUsername(senderUsername).getPrintWriter().println(
-                        mapper.encode(
-                                ServerMessage.requestChat(senderUsername)
-                        )
-                );
+            ChatRequestPayload chatRequestPayload = (envelope.getPayload() instanceof ChatRequestPayload) ? (ChatRequestPayload) envelope.getPayload() : null;
+            if (chatRequestPayload != null && authService.isAuthenticated(clientSocket)) {
+                    String senderUsername = connectionsManagerImpl.findConnectionBySocket(clientSocket).getUsername();
+                    String recipientUsername = chatRequestPayload.getTo();
+                    ActiveConnection recipientActiveConnection = connectionsManagerImpl.findConnectionByUsername(recipientUsername);
+                    if (authService.isAuthenticated(recipientActiveConnection.getSocket())){
+                        ChatIncomingPayload chatIncomingPayload = new ChatIncomingPayload();
+
+                        chatIncomingPayload.setFrom(senderUsername);
+                    }
             }
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
