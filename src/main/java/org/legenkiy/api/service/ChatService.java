@@ -1,13 +1,18 @@
 package org.legenkiy.api.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+
+import org.legenkiy.protocol.message.Envelope;
 
 
 import java.net.Socket;
 
 public interface ChatService {
 
-    void handleChatRequest();
+    void handleChatRequest(Socket clientSocket, Envelope envelope);
+
+    void acceptChat(Socket clientSocketThatAccepted, Envelope envelope);
+
+    void rejectChat(Socket clientSocketThatAccepted, Envelope envelope);
 
     void processMessage() ;
 
