@@ -12,6 +12,8 @@ public interface ChatService {
 
     void acceptChat(Socket clientSocketThatAccepted, Envelope envelope);
 
+    void rejectChat(Socket clientSocketThatAccepted, Envelope envelope);
+
     void processMessage() ;
 
 

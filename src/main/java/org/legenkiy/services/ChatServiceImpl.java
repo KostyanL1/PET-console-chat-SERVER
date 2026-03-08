@@ -13,10 +13,7 @@ import org.legenkiy.context.RequestContext;
 import org.legenkiy.mapper.MessageMapper;
 import org.legenkiy.models.ActiveConnection;
 import org.legenkiy.models.Chat;
-import org.legenkiy.protocol.dtos.ChatAcceptPayload;
-import org.legenkiy.protocol.dtos.ChatIncomingPayload;
-import org.legenkiy.protocol.dtos.ChatRequestPayload;
-import org.legenkiy.protocol.dtos.ChatStartedPayload;
+import org.legenkiy.protocol.dtos.*;
 import org.legenkiy.protocol.enums.MessageType;
 import org.legenkiy.protocol.message.ClientMessage;
 import org.legenkiy.protocol.message.Envelope;
@@ -66,8 +63,8 @@ public class ChatServiceImpl implements ChatService {
         try {
             ChatAcceptPayload chatAcceptPayload = (envelope.getPayload() instanceof ChatAcceptPayload) ? (ChatAcceptPayload) envelope.getPayload() : null;
 
-            if (chatAcceptPayload != null) {
-                if (RequestContext.isExist(chatAcceptPayload.getRequestId())) {
+            if (chatAcceptPayload != null && RequestContext.isExist(chatAcceptPayload.getRequestId())) {
+
 
                     String firstUser = RequestContext.findById(chatAcceptPayload.getRequestId()).getFrom();
                     String secondUser = connectionsManagerImpl.findConnectionBySocket(clientSocketThatAccepted).getUsername();
@@ -92,9 +89,28 @@ public class ChatServiceImpl implements ChatService {
                     }
 
                 }
-            }
         }
         catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void rejectChat(Socket clientSocketThatAccepted, Envelope envelope){
+        try {
+            ChatRejectPayload chatRejectPayload = (envelope.getPayload() instanceof ChatRejectPayload) ? (ChatRejectPayload) envelope.getPayload() : null;
+
+            if (chatRejectPayload != null && RequestContext.isExist(chatRejectPayload.getRequestId())) {
+                String firstUser = RequestContext.findById(chatRejectPayload.getRequestId()).getFrom();
+                Socket clientSocketThatSentRequest = connectionsManagerImpl.findConnectionByUsername(firstUser).getSocket();
+
+                Envelope envelopeForUserThatSentRequest = new Envelope();
+                envelopeForUserThatSentRequest.setType(MessageType.CHAT_REJECT);
+                envelopeForUserThatSentRequest.setPayload(chatRejectPayload);
+
+                senderService.send(clientSocketThatSentRequest, envelopeForUserThatSentRequest);
+            }
+
+        }catch (Exception e){
             throw new RuntimeException(e);
         }
     }
