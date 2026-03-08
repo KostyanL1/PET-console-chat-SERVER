@@ -8,10 +8,16 @@ import org.legenkiy.api.service.AuthService;
 import org.legenkiy.api.service.ChatService;
 import org.legenkiy.api.service.SenderService;
 import org.legenkiy.connection.ConnectionsManagerImpl;
+import org.legenkiy.context.ChatsContext;
+import org.legenkiy.context.RequestContext;
 import org.legenkiy.mapper.MessageMapper;
 import org.legenkiy.models.ActiveConnection;
+import org.legenkiy.models.Chat;
+import org.legenkiy.protocol.dtos.ChatAcceptPayload;
 import org.legenkiy.protocol.dtos.ChatIncomingPayload;
 import org.legenkiy.protocol.dtos.ChatRequestPayload;
+import org.legenkiy.protocol.dtos.ChatStartedPayload;
+import org.legenkiy.protocol.enums.MessageType;
 import org.legenkiy.protocol.message.ClientMessage;
 import org.legenkiy.protocol.message.Envelope;
 import org.legenkiy.protocol.message.ServerMessage;
@@ -34,20 +40,63 @@ public class ChatServiceImpl implements ChatService {
     public void handleChatRequest(Socket clientSocket, Envelope envelope) {
         try {
             ChatRequestPayload chatRequestPayload = (envelope.getPayload() instanceof ChatRequestPayload) ? (ChatRequestPayload) envelope.getPayload() : null;
-            if (chatRequestPayload != null && authService.isAuthenticated(clientSocket)) {
-                    String senderUsername = connectionsManagerImpl.findConnectionBySocket(clientSocket).getUsername();
-                    String recipientUsername = chatRequestPayload.getTo();
-                    ActiveConnection recipientActiveConnection = connectionsManagerImpl.findConnectionByUsername(recipientUsername);
-                    if (authService.isAuthenticated(recipientActiveConnection.getSocket())){
-                        ChatIncomingPayload chatIncomingPayload = new ChatIncomingPayload();
 
-                        chatIncomingPayload.setFrom(senderUsername);
-                    }
+            if (chatRequestPayload != null && authService.isAuthenticated(clientSocket)) {
+
+                String senderUsername = connectionsManagerImpl.findConnectionBySocket(clientSocket).getUsername();
+                String recipientUsername = chatRequestPayload.getTo();
+                ActiveConnection recipientActiveConnection = connectionsManagerImpl.findConnectionByUsername(recipientUsername);
+
+                if (authService.isAuthenticated(recipientActiveConnection.getSocket())) {
+                    ChatIncomingPayload chatIncomingPayload = RequestContext.create(senderUsername);
+                    Envelope envelopeForSend = new Envelope();
+                    envelopeForSend.setType(MessageType.CHAT_REQUEST);
+                    envelopeForSend.setPayload(chatIncomingPayload);
+                    senderService.send(recipientActiveConnection.getSocket(), envelopeForSend);
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
+    }
+
+    @Override
+    public void acceptChat(Socket clientSocketThatAccepted, Envelope envelope) {
+        try {
+            ChatAcceptPayload chatAcceptPayload = (envelope.getPayload() instanceof ChatAcceptPayload) ? (ChatAcceptPayload) envelope.getPayload() : null;
+
+            if (chatAcceptPayload != null) {
+                if (RequestContext.isExist(chatAcceptPayload.getRequestId())) {
+
+                    String firstUser = RequestContext.findById(chatAcceptPayload.getRequestId()).getFrom();
+                    String secondUser = connectionsManagerImpl.findConnectionBySocket(clientSocketThatAccepted).getUsername();
+                    Socket clientSocketThatSentRequest = connectionsManagerImpl.findConnectionByUsername(firstUser).getSocket();
+
+                    RequestContext.removeById(chatAcceptPayload.getRequestId());
+
+                    if (authService.isAuthenticated(clientSocketThatSentRequest) && authService.isAuthenticated(clientSocketThatSentRequest)) {
+                        ChatsContext.create(firstUser, secondUser);
+
+                        ChatStartedPayload chatStartedPayload = new ChatStartedPayload();
+                        chatStartedPayload.setA(firstUser);
+                        chatStartedPayload.setB(secondUser);
+
+                        Envelope envelopeForBothUsers = new Envelope();
+                        envelopeForBothUsers.setType(MessageType.CHAT_STARTED);
+                        envelopeForBothUsers.setPayload(chatStartedPayload);
+
+                        senderService.send(clientSocketThatAccepted, envelopeForBothUsers);
+                        senderService.send(clientSocketThatSentRequest, envelopeForBothUsers);
+
+                    }
+
+                }
+            }
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

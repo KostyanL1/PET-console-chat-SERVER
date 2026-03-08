@@ -26,19 +26,19 @@ public class ChatsContext {
         return chat;
     }
 
-    public boolean isExist(Long id){
+    public static boolean isExist(Long id){
         return chats.stream().anyMatch(
                 payload -> Objects.equals(payload.getId(), id)
         );
     }
 
-    public Chat findById(Long id){
+    public static Chat findById(Long id){
         return chats.stream().filter(
                 payload -> Objects.equals(payload.getId(), id)
         ).findFirst().orElseThrow(() -> new ObjectNotFoundException("Payload not found"));
     }
 
-    public synchronized void removeById(Long id){
+    public static synchronized void removeById(Long id){
         try {
             Chat chat = findById(id);
             chats.remove(chat);

@@ -52,6 +52,13 @@ public class DispatcherServiceImpl implements DispatcherService {
                 }
             }
             case CHAT_REQUEST -> {
+                try {
+                    chatService.handleChatRequest(socket, envelope);
+                } catch (Exception e) {
+                    handleError(socket, e);
+                }
+            }
+            case CHAT_ACCEPT -> {
 
             }
             default -> {
