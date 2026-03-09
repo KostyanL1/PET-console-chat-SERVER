@@ -51,6 +51,10 @@ public class DispatcherServiceImpl implements DispatcherService {
                 case CHAT_REJECT ->
                     chatService.rejectChat(socket, envelope);
 
+                case CHAT_END -> {
+                    chatService.endChat(socket, envelope);
+                }
+
                 default ->
                     handleError(socket, new Exception("Unknown request"));
 

@@ -115,6 +115,31 @@ public class ChatServiceImpl implements ChatService {
         }
     }
 
+    public void endChat(Socket clientThatSentRequestForEnd, Envelope envelope){
+        try {
+            ChatEndPayload chatEndPayload = ((envelope.getPayload()) instanceof ChatEndPayload) ? (ChatEndPayload) envelope.getPayload() : null;
+            if (chatEndPayload != null){
+                Long chatId = chatEndPayload.getId();
+                if (ChatsContext.isExist(chatId)){
+                    Chat chat = ChatsContext.findById(chatId);
+                    Socket firstUserSocket = connectionsManagerImpl.findConnectionByUsername(chat.getMembers().get(0).getUsername()).getSocket();
+                    Socket secondUserSocket = connectionsManagerImpl.findConnectionByUsername(chat.getMembers().get(1).getUsername()).getSocket();
+                    if (clientThatSentRequestForEnd.equals(firstUserSocket) || clientThatSentRequestForEnd.equals(secondUserSocket)){
+                        ChatsContext.removeById(chatEndPayload.getId());
+                        Envelope envelopeForBothUsers = new Envelope();
+                        envelopeForBothUsers.setType(MessageType.CHAT_END);
+
+                        senderService.send(firstUserSocket, envelopeForBothUsers);
+                        senderService.send(secondUserSocket, envelopeForBothUsers);
+                    }
+                }
+            }
+
+        }catch (Exception e){
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public void processMessage(ClientMessage clientMessage, Socket clientSocket) throws JsonProcessingException {
         if (authService.isAuthenticate(clientSocket)) {
