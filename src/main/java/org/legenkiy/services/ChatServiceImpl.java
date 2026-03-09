@@ -141,34 +141,41 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public void processMessage(ClientMessage clientMessage, Socket clientSocket) throws JsonProcessingException {
-        if (authService.isAuthenticate(clientSocket)) {
-            connectionsManagerImpl.findConnectionByUsername(clientMessage.getTo()).getPrintWriter().println(
-                    mapper.encode(
-                            ServerMessage
-                                    .chat(
-                                            clientMessage.getFrom(),
-                                            clientMessage.getContent()
-                                    )
-                    )
-            );
-        } else {
-            LOGGER.info("Sending failed. Authentication needed for client {}", clientSocket.getRemoteSocketAddress());
-            connectionsManagerImpl.findConnectionBySocket(
-                            clientSocket)
-                    .getPrintWriter().println(ServerMessage.error("Authentication needed"));
+    public void processMessage(Socket senderSocket, Envelope envelope)  {
+        try {
+            String senderUsername = connectionsManagerImpl.findConnectionBySocket(senderSocket).getUsername();
+            ChatMessagePayload chatMessagePayloadFromSender = ((envelope.getPayload() instanceof ChatMessagePayload)) ? (ChatMessagePayload) envelope.getPayload() : null;
+            if (chatMessagePayloadFromSender != null){
+                Long chatId = chatMessagePayloadFromSender.getChatId();
+                if (ChatsContext.isExist(chatId)){
+                    Chat chat = ChatsContext.findById(chatId);
+                    String aUsername = chat.getMembers().get(0).getUsername();
+                    String bUsername = chat.getMembers().get(1).getUsername();
+                    Socket recipientSocket;
+                    if (aUsername.equals(senderUsername)){
+                        recipientSocket = connectionsManagerImpl.findConnectionByUsername(bUsername).getSocket();
+                    }else {
+                        recipientSocket = connectionsManagerImpl.findConnectionByUsername(aUsername).getSocket();
+                    }
+
+                    ChatMessagePayload chatMessagePayloadForRecipient = new ChatMessagePayload();
+                    chatMessagePayloadForRecipient.setChatId(chatId);
+                    chatMessagePayloadForRecipient.setText(chatMessagePayloadFromSender.getText());
+
+                    Envelope envelopeForRecipient = new Envelope();
+                    envelopeForRecipient.setType(MessageType.CHAT_MSG);
+                    envelopeForRecipient.setPayload(chatMessagePayloadForRecipient);
+
+                    senderService.send(recipientSocket, envelope);
+                }
+            }
+        }catch (Exception e){
+            throw new RuntimeException(e);
         }
-    }
 
 
-    @Override
-    public void processMessage(ServerMessage serverMessage) {
 
     }
 
-    @Override
-    public void processMessage(ClientMessage clientMessage, ServerMessage serverMessage) {
-
-    }
 }
 
