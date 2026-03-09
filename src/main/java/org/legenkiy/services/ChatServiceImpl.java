@@ -9,6 +9,7 @@ import org.legenkiy.api.service.SenderService;
 import org.legenkiy.connection.ConnectionsManagerImpl;
 import org.legenkiy.context.ChatsContext;
 import org.legenkiy.context.RequestContext;
+import org.legenkiy.exceptions.ObjectNotFoundException;
 import org.legenkiy.models.ActiveConnection;
 import org.legenkiy.models.Chat;
 import org.legenkiy.protocol.dtos.*;
@@ -46,7 +47,11 @@ public class ChatServiceImpl implements ChatService {
                     envelopeForSend.setType(MessageType.CHAT_REQUEST);
                     envelopeForSend.setPayload(chatIncomingPayload);
                     senderService.send(recipientActiveConnection.getSocket(), envelopeForSend);
+                }else {
+                    throw new RuntimeException("Recipient offline");
                 }
+            }else {
+                throw new IllegalArgumentException("Incorrect payload");
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -68,7 +73,7 @@ public class ChatServiceImpl implements ChatService {
 
                 RequestContext.removeById(chatAcceptPayload.getRequestId());
 
-                if (authService.isAuthenticated(clientSocketThatSentRequest) && authService.isAuthenticated(clientSocketThatSentRequest)) {
+                if (authService.isAuthenticated(clientSocketThatSentRequest)) {
                     ChatsContext.create(firstUser, secondUser);
 
                     ChatStartedPayload chatStartedPayload = new ChatStartedPayload();
@@ -82,8 +87,11 @@ public class ChatServiceImpl implements ChatService {
                     senderService.send(clientSocketThatAccepted, envelopeForBothUsers);
                     senderService.send(clientSocketThatSentRequest, envelopeForBothUsers);
 
+                }else {
+                    throw new RuntimeException("Client that sent request offline");
                 }
-
+            }else {
+                throw new IllegalArgumentException("Incorrect payload");
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -103,6 +111,8 @@ public class ChatServiceImpl implements ChatService {
                 envelopeForUserThatSentRequest.setPayload(chatRejectPayload);
 
                 senderService.send(clientSocketThatSentRequest, envelopeForUserThatSentRequest);
+            }else {
+                throw new IllegalArgumentException("Incorrect payload");
             }
 
         } catch (Exception e) {
@@ -126,8 +136,14 @@ public class ChatServiceImpl implements ChatService {
 
                         senderService.send(firstUserSocket, envelopeForBothUsers);
                         senderService.send(secondUserSocket, envelopeForBothUsers);
+                    }else {
+                        throw new RuntimeException("Error in finding recipient socket");
                     }
+                }else {
+                    throw new ObjectNotFoundException("Chat not found");
                 }
+            }else {
+                throw new IllegalArgumentException("Incorrect payload");
             }
 
         } catch (Exception e) {
@@ -163,6 +179,8 @@ public class ChatServiceImpl implements ChatService {
 
                     senderService.send(recipientSocket, envelope);
                 }
+            }else {
+                throw new IllegalArgumentException("Incorrect payload");
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
