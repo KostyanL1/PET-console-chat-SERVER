@@ -1,6 +1,5 @@
 package org.legenkiy.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,14 +9,12 @@ import org.legenkiy.api.service.SenderService;
 import org.legenkiy.connection.ConnectionsManagerImpl;
 import org.legenkiy.context.ChatsContext;
 import org.legenkiy.context.RequestContext;
-import org.legenkiy.mapper.MessageMapper;
+import org.legenkiy.exceptions.ObjectNotFoundException;
 import org.legenkiy.models.ActiveConnection;
 import org.legenkiy.models.Chat;
 import org.legenkiy.protocol.dtos.*;
 import org.legenkiy.protocol.enums.MessageType;
-import org.legenkiy.protocol.message.ClientMessage;
 import org.legenkiy.protocol.message.Envelope;
-import org.legenkiy.protocol.message.ServerMessage;
 import org.springframework.stereotype.Service;
 
 import java.net.Socket;
@@ -25,10 +22,10 @@ import java.net.Socket;
 @Service
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
+
     private final static Logger LOGGER = LogManager.getLogger(ChatServiceImpl.class);
 
     private final ConnectionsManagerImpl connectionsManagerImpl;
-    private final MessageMapper mapper;
     private final AuthService authService;
     private final SenderService senderService;
 
@@ -50,7 +47,11 @@ public class ChatServiceImpl implements ChatService {
                     envelopeForSend.setType(MessageType.CHAT_REQUEST);
                     envelopeForSend.setPayload(chatIncomingPayload);
                     senderService.send(recipientActiveConnection.getSocket(), envelopeForSend);
+                }else {
+                    throw new RuntimeException("Recipient offline");
                 }
+            }else {
+                throw new IllegalArgumentException("Incorrect payload");
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -66,36 +67,38 @@ public class ChatServiceImpl implements ChatService {
             if (chatAcceptPayload != null && RequestContext.isExist(chatAcceptPayload.getRequestId())) {
 
 
-                    String firstUser = RequestContext.findById(chatAcceptPayload.getRequestId()).getFrom();
-                    String secondUser = connectionsManagerImpl.findConnectionBySocket(clientSocketThatAccepted).getUsername();
-                    Socket clientSocketThatSentRequest = connectionsManagerImpl.findConnectionByUsername(firstUser).getSocket();
+                String firstUser = RequestContext.findById(chatAcceptPayload.getRequestId()).getFrom();
+                String secondUser = connectionsManagerImpl.findConnectionBySocket(clientSocketThatAccepted).getUsername();
+                Socket clientSocketThatSentRequest = connectionsManagerImpl.findConnectionByUsername(firstUser).getSocket();
 
-                    RequestContext.removeById(chatAcceptPayload.getRequestId());
+                RequestContext.removeById(chatAcceptPayload.getRequestId());
 
-                    if (authService.isAuthenticated(clientSocketThatSentRequest) && authService.isAuthenticated(clientSocketThatSentRequest)) {
-                        ChatsContext.create(firstUser, secondUser);
+                if (authService.isAuthenticated(clientSocketThatSentRequest)) {
+                    ChatsContext.create(firstUser, secondUser);
 
-                        ChatStartedPayload chatStartedPayload = new ChatStartedPayload();
-                        chatStartedPayload.setA(firstUser);
-                        chatStartedPayload.setB(secondUser);
+                    ChatStartedPayload chatStartedPayload = new ChatStartedPayload();
+                    chatStartedPayload.setA(firstUser);
+                    chatStartedPayload.setB(secondUser);
 
-                        Envelope envelopeForBothUsers = new Envelope();
-                        envelopeForBothUsers.setType(MessageType.CHAT_STARTED);
-                        envelopeForBothUsers.setPayload(chatStartedPayload);
+                    Envelope envelopeForBothUsers = new Envelope();
+                    envelopeForBothUsers.setType(MessageType.CHAT_STARTED);
+                    envelopeForBothUsers.setPayload(chatStartedPayload);
 
-                        senderService.send(clientSocketThatAccepted, envelopeForBothUsers);
-                        senderService.send(clientSocketThatSentRequest, envelopeForBothUsers);
+                    senderService.send(clientSocketThatAccepted, envelopeForBothUsers);
+                    senderService.send(clientSocketThatSentRequest, envelopeForBothUsers);
 
-                    }
-
+                }else {
+                    throw new RuntimeException("Client that sent request offline");
                 }
-        }
-        catch (Exception e) {
+            }else {
+                throw new IllegalArgumentException("Incorrect payload");
+            }
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void rejectChat(Socket clientSocketThatAccepted, Envelope envelope){
+    public void rejectChat(Socket clientSocketThatAccepted, Envelope envelope) {
         try {
             ChatRejectPayload chatRejectPayload = (envelope.getPayload() instanceof ChatRejectPayload) ? (ChatRejectPayload) envelope.getPayload() : null;
 
@@ -108,42 +111,83 @@ public class ChatServiceImpl implements ChatService {
                 envelopeForUserThatSentRequest.setPayload(chatRejectPayload);
 
                 senderService.send(clientSocketThatSentRequest, envelopeForUserThatSentRequest);
+            }else {
+                throw new IllegalArgumentException("Incorrect payload");
             }
 
-        }catch (Exception e){
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void endChat(Socket clientThatSentRequestForEnd, Envelope envelope) {
+        try {
+            ChatEndPayload chatEndPayload = ((envelope.getPayload()) instanceof ChatEndPayload) ? (ChatEndPayload) envelope.getPayload() : null;
+            if (chatEndPayload != null) {
+                Long chatId = chatEndPayload.getId();
+                if (ChatsContext.isExist(chatId)) {
+                    Chat chat = ChatsContext.findById(chatId);
+                    Socket firstUserSocket = connectionsManagerImpl.findConnectionByUsername(chat.getMembers().get(0).getUsername()).getSocket();
+                    Socket secondUserSocket = connectionsManagerImpl.findConnectionByUsername(chat.getMembers().get(1).getUsername()).getSocket();
+                    if (clientThatSentRequestForEnd.equals(firstUserSocket) || clientThatSentRequestForEnd.equals(secondUserSocket)) {
+                        ChatsContext.removeById(chatEndPayload.getId());
+                        Envelope envelopeForBothUsers = new Envelope();
+                        envelopeForBothUsers.setType(MessageType.CHAT_END);
+
+                        senderService.send(firstUserSocket, envelopeForBothUsers);
+                        senderService.send(secondUserSocket, envelopeForBothUsers);
+                    }else {
+                        throw new RuntimeException("Error in finding recipient socket");
+                    }
+                }else {
+                    throw new ObjectNotFoundException("Chat not found");
+                }
+            }else {
+                throw new IllegalArgumentException("Incorrect payload");
+            }
+
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public void processMessage(ClientMessage clientMessage, Socket clientSocket) throws JsonProcessingException {
-        if (authService.isAuthenticate(clientSocket)) {
-            connectionsManagerImpl.findConnectionByUsername(clientMessage.getTo()).getPrintWriter().println(
-                    mapper.encode(
-                            ServerMessage
-                                    .chat(
-                                            clientMessage.getFrom(),
-                                            clientMessage.getContent()
-                                    )
-                    )
-            );
-        } else {
-            LOGGER.info("Sending failed. Authentication needed for client {}", clientSocket.getRemoteSocketAddress());
-            connectionsManagerImpl.findConnectionBySocket(
-                            clientSocket)
-                    .getPrintWriter().println(ServerMessage.error("Authentication needed"));
+    public void processMessage(Socket senderSocket, Envelope envelope) {
+        try {
+            String senderUsername = connectionsManagerImpl.findConnectionBySocket(senderSocket).getUsername();
+            ChatMessagePayload chatMessagePayloadFromSender = ((envelope.getPayload() instanceof ChatMessagePayload)) ? (ChatMessagePayload) envelope.getPayload() : null;
+            if (chatMessagePayloadFromSender != null) {
+                Long chatId = chatMessagePayloadFromSender.getChatId();
+                if (ChatsContext.isExist(chatId)) {
+                    Chat chat = ChatsContext.findById(chatId);
+                    String aUsername = chat.getMembers().get(0).getUsername();
+                    String bUsername = chat.getMembers().get(1).getUsername();
+                    Socket recipientSocket;
+                    if (aUsername.equals(senderUsername)) {
+                        recipientSocket = connectionsManagerImpl.findConnectionByUsername(bUsername).getSocket();
+                    } else {
+                        recipientSocket = connectionsManagerImpl.findConnectionByUsername(aUsername).getSocket();
+                    }
+
+                    ChatMessagePayload chatMessagePayloadForRecipient = new ChatMessagePayload();
+                    chatMessagePayloadForRecipient.setChatId(chatId);
+                    chatMessagePayloadForRecipient.setText(chatMessagePayloadFromSender.getText());
+
+                    Envelope envelopeForRecipient = new Envelope();
+                    envelopeForRecipient.setType(MessageType.CHAT_MSG);
+                    envelopeForRecipient.setPayload(chatMessagePayloadForRecipient);
+
+                    senderService.send(recipientSocket, envelope);
+                }
+            }else {
+                throw new IllegalArgumentException("Incorrect payload");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-    }
 
-
-    @Override
-    public void processMessage(ServerMessage serverMessage) {
 
     }
 
-    @Override
-    public void processMessage(ClientMessage clientMessage, ServerMessage serverMessage) {
-
-    }
 }
 

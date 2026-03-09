@@ -8,10 +8,8 @@ import org.legenkiy.api.service.AuthService;
 import org.legenkiy.api.service.ChatService;
 import org.legenkiy.api.service.DispatcherService;
 import org.legenkiy.api.service.SenderService;
-import org.legenkiy.mapper.MessageMapper;
 import org.legenkiy.protocol.enums.MessageType;
 import org.legenkiy.protocol.message.Envelope;
-import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 
 
@@ -27,32 +25,28 @@ public class DispatcherServiceImpl implements DispatcherService {
     private final AuthService authService;
     private final SenderService senderService;
     private final ChatService chatService;
-    private final PropertyResolver propertyResolver;
 
     @Override
     public void handle(Envelope envelope, Socket socket, PrintWriter printWriter) {
         try {
             switch (envelope.getType()) {
-                case HELLO ->
-                    authService.handshake(socket, envelope);
+                case HELLO -> authService.handshake(socket, envelope);
 
-                case AUTH_REGISTER ->
-                    authService.register(socket, envelope);
+                case AUTH_REGISTER -> authService.register(socket, envelope);
 
-                case AUTH_LOGIN ->
-                    authService.login(socket, envelope);
+                case AUTH_LOGIN -> authService.login(socket, envelope);
 
-                case CHAT_REQUEST ->
-                    chatService.handleChatRequest(socket, envelope);
+                case CHAT_REQUEST -> chatService.handleChatRequest(socket, envelope);
 
-                case CHAT_ACCEPT ->
-                        chatService.acceptChat(socket, envelope);
+                case CHAT_ACCEPT -> chatService.acceptChat(socket, envelope);
 
-                case CHAT_REJECT ->
-                    chatService.rejectChat(socket, envelope);
+                case CHAT_REJECT -> chatService.rejectChat(socket, envelope);
 
-                default ->
-                    handleError(socket, new Exception("Unknown request"));
+                case CHAT_END -> chatService.endChat(socket, envelope);
+
+                case CHAT_MSG -> chatService.processMessage(socket, envelope);
+
+                default -> handleError(socket, new Exception("Unknown request"));
 
             }
         } catch (Exception e) {
