@@ -16,7 +16,7 @@ public interface ChatService {
 
     void endChat(Socket clientThatSentRequestForEnd, Envelope envelope);
 
-    void processMessage() ;
+    void processMessage(Socket senderSocket, Envelope envelope);
 
 
 }
