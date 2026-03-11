@@ -14,11 +14,11 @@ import java.util.concurrent.atomic.AtomicLong;
 @Scope(value = "singleton")
 public class ChatsContext {
 
-    private static List<Chat> chats = new  CopyOnWriteArrayList<>();
+    private List<Chat> chats = new  CopyOnWriteArrayList<>();
     private static AtomicLong index = new AtomicLong(0);
 
 
-    public static synchronized Chat create(String firstUser, String secondUser){
+    public synchronized Chat create(String firstUser, String secondUser){
         Chat chat = new Chat();
         chat.setId(index.incrementAndGet());
         List<String> members = List.of(firstUser, secondUser);
@@ -26,19 +26,19 @@ public class ChatsContext {
         return chat;
     }
 
-    public static boolean isExist(Long id){
+    public boolean isExist(Long id){
         return chats.stream().anyMatch(
                 payload -> Objects.equals(payload.getId(), id)
         );
     }
 
-    public static Chat findById(Long id){
+    public Chat findById(Long id){
         return chats.stream().filter(
                 payload -> Objects.equals(payload.getId(), id)
         ).findFirst().orElseThrow(() -> new ObjectNotFoundException("Payload not found"));
     }
 
-    public static synchronized void removeById(Long id){
+    public synchronized void removeById(Long id){
         try {
             Chat chat = findById(id);
             chats.remove(chat);
