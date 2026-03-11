@@ -1,10 +1,10 @@
 package org.legenkiy.services;
 
 import lombok.RequiredArgsConstructor;
+import org.legenkiy.api.connection.ConnectionManager;
 import org.legenkiy.api.service.AuthService;
 import org.legenkiy.api.service.SenderService;
 import org.legenkiy.api.service.UserService;
-import org.legenkiy.connection.ConnectionsManagerImpl;
 import org.legenkiy.dto.UserDto;
 import org.legenkiy.enums.ClientState;
 import org.legenkiy.exceptions.AuthException;
@@ -24,7 +24,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private final ConnectionsManagerImpl connectionsManagerImpl;
+    private final ConnectionManager connectionsManager;
     private final UserService userService;
     private final SenderService senderService;
 
@@ -40,7 +40,7 @@ public class AuthServiceImpl implements AuthService {
                 userDto.setUsername(username);
                 userDto.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
                 userService.save(userDto);
-                connectionsManagerImpl.authenticate(socket, username);
+                connectionsManager.authenticate(socket, username);
             } else {
                 throw new AuthException("This username registered");
             }
@@ -56,7 +56,7 @@ public class AuthServiceImpl implements AuthService {
             AuthPayload authPayload = extractAuthPayload(envelope);
             String username = authPayload.getUsername();
             if (isRegisteredUsername(username) && isPasswordCorrect(authPayload)) {
-                connectionsManagerImpl.authenticate(socket, authPayload.getUsername());
+                connectionsManager.authenticate(socket, authPayload.getUsername());
             } else {
                 throw new AuthException("Username or password incorrect");
             }
@@ -67,7 +67,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public boolean isAuthenticated(Socket socket) {
-        Optional<ActiveConnection> activeConnection = Optional.ofNullable(connectionsManagerImpl.findConnectionBySocket(socket));
+        Optional<ActiveConnection> activeConnection = Optional.ofNullable(connectionsManager.findConnectionBySocket(socket));
         return activeConnection.map
                         (connection -> connection.getClientState().equals(ClientState.AUTHENTICATED))
                 .orElse(false);

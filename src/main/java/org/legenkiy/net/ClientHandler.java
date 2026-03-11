@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.legenkiy.api.connection.ConnectionManager;
 import org.legenkiy.api.service.DispatcherService;
-import org.legenkiy.connection.ConnectionsManagerImpl;
 import org.legenkiy.mapper.MessageMapper;
 import org.legenkiy.protocol.message.Envelope;
 import org.springframework.context.annotation.Scope;
@@ -29,7 +29,7 @@ public class ClientHandler implements Runnable {
 
     private final MessageMapper mapper;
     private final DispatcherService dispatcherService;
-    private final ConnectionsManagerImpl connectionsManagerImpl;
+    private final ConnectionManager connectionManager;
 
     private Socket socket;
 
@@ -60,7 +60,7 @@ public class ClientHandler implements Runnable {
             if (!this.socket.isClosed()){
                 try {
                     this.socket.close();
-                    connectionsManagerImpl.removeConnectionBySocket(this.socket);
+                    connectionManager.removeConnectionBySocket(this.socket);
                 } catch (IOException ignored) {}
             }
         }
