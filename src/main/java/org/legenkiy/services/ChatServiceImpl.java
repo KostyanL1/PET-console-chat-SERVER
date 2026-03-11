@@ -3,10 +3,11 @@ package org.legenkiy.services;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.legenkiy.api.connection.ConnectionManager;
 import org.legenkiy.api.service.AuthService;
 import org.legenkiy.api.service.ChatService;
 import org.legenkiy.api.service.SenderService;
-import org.legenkiy.connection.ConnectionsManagerImpl;
+
 import org.legenkiy.context.ChatsContext;
 import org.legenkiy.context.RequestContext;
 import org.legenkiy.exceptions.ObjectNotFoundException;
@@ -25,7 +26,7 @@ public class ChatServiceImpl implements ChatService {
 
     private final static Logger LOGGER = LogManager.getLogger(ChatServiceImpl.class);
 
-    private final ConnectionsManagerImpl connectionsManagerImpl;
+    private final ConnectionManager connectionManager;
     private final AuthService authService;
     private final SenderService senderService;
 
@@ -37,9 +38,9 @@ public class ChatServiceImpl implements ChatService {
 
             if (chatRequestPayload != null && authService.isAuthenticated(clientSocket)) {
 
-                String senderUsername = connectionsManagerImpl.findConnectionBySocket(clientSocket).getUsername();
+                String senderUsername = connectionManager.findConnectionBySocket(clientSocket).getUsername();
                 String recipientUsername = chatRequestPayload.getTo();
-                ActiveConnection recipientActiveConnection = connectionsManagerImpl.findConnectionByUsername(recipientUsername);
+                ActiveConnection recipientActiveConnection = connectionManager.findConnectionByUsername(recipientUsername);
 
                 if (authService.isAuthenticated(recipientActiveConnection.getSocket())) {
                     ChatIncomingPayload chatIncomingPayload = RequestContext.create(senderUsername);
@@ -68,8 +69,8 @@ public class ChatServiceImpl implements ChatService {
 
 
                 String firstUser = RequestContext.findById(chatAcceptPayload.getRequestId()).getFrom();
-                String secondUser = connectionsManagerImpl.findConnectionBySocket(clientSocketThatAccepted).getUsername();
-                Socket clientSocketThatSentRequest = connectionsManagerImpl.findConnectionByUsername(firstUser).getSocket();
+                String secondUser = connectionManager.findConnectionBySocket(clientSocketThatAccepted).getUsername();
+                Socket clientSocketThatSentRequest = connectionManager.findConnectionByUsername(firstUser).getSocket();
 
                 RequestContext.removeById(chatAcceptPayload.getRequestId());
 
@@ -104,7 +105,7 @@ public class ChatServiceImpl implements ChatService {
 
             if (chatRejectPayload != null && RequestContext.isExist(chatRejectPayload.getRequestId())) {
                 String firstUser = RequestContext.findById(chatRejectPayload.getRequestId()).getFrom();
-                Socket clientSocketThatSentRequest = connectionsManagerImpl.findConnectionByUsername(firstUser).getSocket();
+                Socket clientSocketThatSentRequest = connectionManager.findConnectionByUsername(firstUser).getSocket();
 
                 Envelope envelopeForUserThatSentRequest = new Envelope();
                 envelopeForUserThatSentRequest.setType(MessageType.CHAT_REJECT);
@@ -127,8 +128,8 @@ public class ChatServiceImpl implements ChatService {
                 Long chatId = chatEndPayload.getId();
                 if (ChatsContext.isExist(chatId)) {
                     Chat chat = ChatsContext.findById(chatId);
-                    Socket firstUserSocket = connectionsManagerImpl.findConnectionByUsername(chat.getMembers().get(0).getUsername()).getSocket();
-                    Socket secondUserSocket = connectionsManagerImpl.findConnectionByUsername(chat.getMembers().get(1).getUsername()).getSocket();
+                    Socket firstUserSocket = connectionManager.findConnectionByUsername(chat.getMembers().get(0).getUsername()).getSocket();
+                    Socket secondUserSocket = connectionManager.findConnectionByUsername(chat.getMembers().get(1).getUsername()).getSocket();
                     if (clientThatSentRequestForEnd.equals(firstUserSocket) || clientThatSentRequestForEnd.equals(secondUserSocket)) {
                         ChatsContext.removeById(chatEndPayload.getId());
                         Envelope envelopeForBothUsers = new Envelope();
@@ -154,7 +155,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public void processMessage(Socket senderSocket, Envelope envelope) {
         try {
-            String senderUsername = connectionsManagerImpl.findConnectionBySocket(senderSocket).getUsername();
+            String senderUsername = connectionManager.findConnectionBySocket(senderSocket).getUsername();
             ChatMessagePayload chatMessagePayloadFromSender = ((envelope.getPayload() instanceof ChatMessagePayload)) ? (ChatMessagePayload) envelope.getPayload() : null;
             if (chatMessagePayloadFromSender != null) {
                 Long chatId = chatMessagePayloadFromSender.getChatId();
@@ -164,9 +165,9 @@ public class ChatServiceImpl implements ChatService {
                     String bUsername = chat.getMembers().get(1).getUsername();
                     Socket recipientSocket;
                     if (aUsername.equals(senderUsername)) {
-                        recipientSocket = connectionsManagerImpl.findConnectionByUsername(bUsername).getSocket();
+                        recipientSocket = connectionManager.findConnectionByUsername(bUsername).getSocket();
                     } else {
-                        recipientSocket = connectionsManagerImpl.findConnectionByUsername(aUsername).getSocket();
+                        recipientSocket = connectionManager.findConnectionByUsername(aUsername).getSocket();
                     }
 
                     ChatMessagePayload chatMessagePayloadForRecipient = new ChatMessagePayload();

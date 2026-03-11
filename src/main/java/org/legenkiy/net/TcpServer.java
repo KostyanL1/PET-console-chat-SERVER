@@ -3,7 +3,7 @@ package org.legenkiy.net;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.legenkiy.connection.ConnectionsManagerImpl;
+import org.legenkiy.api.connection.ConnectionManager;
 import org.legenkiy.exceptions.ConnectionException;
 import org.legenkiy.factory.ClientHandlerFactory;
 import org.legenkiy.models.ActiveConnection;
@@ -24,7 +24,7 @@ public class TcpServer implements Runnable {
     private static final Logger LOGGER = LogManager.getLogger(TcpServer.class);
 
 
-    private final ConnectionsManagerImpl connectionsManagerImpl;
+    private final ConnectionManager connectionManager;
     private final ClientHandlerFactory clientHandlerFactory;
 
 
@@ -50,7 +50,7 @@ public class TcpServer implements Runnable {
                     .printWriter(new PrintWriter(clientSocket.getOutputStream(), true))
                     .build();
 
-            connectionsManagerImpl.create(clientSocket, activeConnection);
+            connectionManager.create(clientSocket, activeConnection);
             Thread thread = new Thread(clientHandlerFactory.create(clientSocket));
             thread.start();
         } catch (IOException e) {
