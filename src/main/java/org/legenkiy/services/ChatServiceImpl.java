@@ -47,7 +47,7 @@ public class ChatServiceImpl implements ChatService {
                 if (authService.isAuthenticated(recipientActiveConnection.getSocket())) {
                     ChatIncomingPayload chatIncomingPayload = requestContext.create(senderUsername);
                     Envelope envelopeForSend = new Envelope();
-                    envelopeForSend.setType(MessageType.CHAT_REQUEST);
+                    envelopeForSend.setType(MessageType.CHAT_INCOMING);
                     envelopeForSend.setPayload(chatIncomingPayload);
                     senderService.send(recipientActiveConnection.getSocket(), envelopeForSend);
                 }else {
@@ -180,7 +180,7 @@ public class ChatServiceImpl implements ChatService {
                     envelopeForRecipient.setType(MessageType.CHAT_MSG);
                     envelopeForRecipient.setPayload(chatMessagePayloadForRecipient);
 
-                    senderService.send(recipientSocket, envelope);
+                    senderService.send(recipientSocket, envelopeForRecipient);
                 }
             }else {
                 throw new IllegalArgumentException("Incorrect payload");
