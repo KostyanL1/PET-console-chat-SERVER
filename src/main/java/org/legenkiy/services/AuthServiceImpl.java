@@ -45,7 +45,7 @@ public class AuthServiceImpl implements AuthService {
                 throw new AuthException("This username registered");
             }
         } else {
-            throw new AuthException("This socket authenticated");
+            throw new AuthException("Socket is not authenticated");
         }
 
     }
@@ -61,7 +61,7 @@ public class AuthServiceImpl implements AuthService {
                 throw new AuthException("Username or password incorrect");
             }
         } else {
-            throw new AuthException("This socket authenticated");
+            throw new AuthException("Socket is not authenticated");
         }
     }
 
