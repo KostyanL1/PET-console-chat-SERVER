@@ -41,6 +41,14 @@ public class AuthServiceImpl implements AuthService {
                 userDto.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
                 userService.save(userDto);
                 connectionsManager.authenticate(socket, username);
+                AuthPayload authPayloadForUser =  new AuthPayload();
+                authPayloadForUser.setUsername(username);
+                senderService.send(socket,
+                        Envelope.builder()
+                                .type(MessageType.AUTH_OK)
+                                .payload(authPayloadForUser)
+                                .build()
+                );
             } else {
                 throw new AuthException("This username registered");
             }
@@ -57,6 +65,14 @@ public class AuthServiceImpl implements AuthService {
             String username = authPayload.getUsername();
             if (isRegisteredUsername(username) && isPasswordCorrect(authPayload)) {
                 connectionsManager.authenticate(socket, authPayload.getUsername());
+                AuthPayload authPayloadForUser =  new AuthPayload();
+                authPayloadForUser.setUsername(username);
+                senderService.send(socket,
+                        Envelope.builder()
+                                .type(MessageType.AUTH_OK)
+                                .payload(authPayloadForUser)
+                                .build()
+                );
             } else {
                 throw new AuthException("Username or password incorrect");
             }
