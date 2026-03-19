@@ -36,6 +36,7 @@ public class ConnectionsManagerImpl implements ConnectionManager {
             activeConnection.setId(index.incrementAndGet());
             activeConnection.setClientState(ClientState.NEW);
             this.activeConnectionBySocketMap.put(clientSocket, activeConnection);
+            LOGGER.info("Connection created.");
         } else {
             String message = "Connection with socket: " + senderServiceImpl + " already connected!";
             LOGGER.info(message);
