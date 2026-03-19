@@ -34,7 +34,7 @@ public class AuthServiceImpl implements AuthService {
         AuthPayload authPayload = extractAuthPayload(envelope);
         String username = authPayload.getUsername();
         String password = authPayload.getPassword();
-        if (isAuthenticated(socket)) {
+        if (!isAuthenticated(socket)) {
             if (!isRegisteredUsername(username)) {
                 UserDto userDto = new UserDto();
                 userDto.setUsername(username);
@@ -60,7 +60,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void login(Socket socket, Envelope envelope) {
-        if (isAuthenticated(socket)) {
+        if (!isAuthenticated(socket)) {
             AuthPayload authPayload = extractAuthPayload(envelope);
             String username = authPayload.getUsername();
             if (isRegisteredUsername(username) && isPasswordCorrect(authPayload)) {
@@ -121,11 +121,15 @@ public class AuthServiceImpl implements AuthService {
 
     public AuthPayload extractAuthPayload(Envelope envelope) {
         Object payload = envelope.getPayload();
-        if (payload instanceof AuthPayload) {
-            return (AuthPayload) payload;
-        } else {
-            throw new RuntimeException("Incorrect auth payload");
+
+        if (payload == null) {
+            throw new IllegalArgumentException("Payload cannot be null");
         }
 
+        if (!(payload instanceof AuthPayload)) {
+            throw new IllegalStateException("Expected AuthPayload, but got: " + payload.getClass().getSimpleName());
+        }
+
+        return (AuthPayload) payload;
     }
 }
