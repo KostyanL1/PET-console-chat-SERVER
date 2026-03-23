@@ -36,6 +36,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public void handleChatRequest(Socket clientSocket, Envelope envelope) {
         try {
+            LOGGER.info("Chat request handling from {}", clientSocket.getRemoteSocketAddress());
             ChatRequestPayload chatRequestPayload = (envelope.getPayload() instanceof ChatRequestPayload) ? (ChatRequestPayload) envelope.getPayload() : null;
 
             if (chatRequestPayload != null && authService.isAuthenticated(clientSocket)) {
@@ -45,6 +46,7 @@ public class ChatServiceImpl implements ChatService {
                 ActiveConnection recipientActiveConnection = connectionManager.findConnectionByUsername(recipientUsername);
 
                 if (authService.isAuthenticated(recipientActiveConnection.getSocket())) {
+                    LOGGER.info("Recipient authenticated {}", recipientActiveConnection.getSocket().getRemoteSocketAddress());
                     ChatIncomingPayload chatIncomingPayload = requestContext.create(senderUsername);
                     Envelope envelopeForSend = new Envelope();
                     envelopeForSend.setType(MessageType.CHAT_INCOMING);
@@ -65,6 +67,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public void acceptChat(Socket clientSocketThatAccepted, Envelope envelope) {
         try {
+            LOGGER.info("Chat request accepted from {}", clientSocketThatAccepted.getRemoteSocketAddress());
             ChatAcceptPayload chatAcceptPayload = (envelope.getPayload() instanceof ChatAcceptPayload) ? (ChatAcceptPayload) envelope.getPayload() : null;
 
             if (chatAcceptPayload != null && requestContext.isExist(chatAcceptPayload.getRequestId())) {
@@ -103,6 +106,7 @@ public class ChatServiceImpl implements ChatService {
 
     public void rejectChat(Socket clientSocketThatAccepted, Envelope envelope) {
         try {
+            LOGGER.info("Chat request rejected from {}", clientSocketThatAccepted.getRemoteSocketAddress());
             ChatRejectPayload chatRejectPayload = (envelope.getPayload() instanceof ChatRejectPayload) ? (ChatRejectPayload) envelope.getPayload() : null;
 
             if (chatRejectPayload != null && requestContext.isExist(chatRejectPayload.getRequestId())) {
@@ -125,6 +129,7 @@ public class ChatServiceImpl implements ChatService {
 
     public void endChat(Socket clientThatSentRequestForEnd, Envelope envelope) {
         try {
+            LOGGER.info("Chat ended from {}", clientThatSentRequestForEnd.getRemoteSocketAddress());
             ChatEndPayload chatEndPayload = ((envelope.getPayload()) instanceof ChatEndPayload) ? (ChatEndPayload) envelope.getPayload() : null;
             if (chatEndPayload != null) {
                 Long chatId = chatEndPayload.getId();
