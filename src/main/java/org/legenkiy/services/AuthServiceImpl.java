@@ -1,6 +1,8 @@
 package org.legenkiy.services;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.legenkiy.api.connection.ConnectionManager;
 import org.legenkiy.api.service.AuthService;
 import org.legenkiy.api.service.SenderService;
@@ -23,6 +25,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
+    private static final Logger LOGGER = LogManager.getLogger(AuthServiceImpl.class);
 
     private final ConnectionManager connectionsManager;
     private final UserService userService;
@@ -49,6 +52,7 @@ public class AuthServiceImpl implements AuthService {
                                 .payload(authPayloadForUser)
                                 .build()
                 );
+                LOGGER.info("Register success for {}", username);
             } else {
                 throw new AuthException("This username registered");
             }
@@ -73,6 +77,7 @@ public class AuthServiceImpl implements AuthService {
                                 .payload(authPayloadForUser)
                                 .build()
                 );
+                LOGGER.info("Login success for {}", username);
             } else {
                 throw new AuthException("Username or password incorrect");
             }
@@ -84,9 +89,11 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public boolean isAuthenticated(Socket socket) {
         Optional<ActiveConnection> activeConnection = Optional.ofNullable(connectionsManager.findConnectionBySocket(socket));
-        return activeConnection.map
+        boolean isAuthenticated =  activeConnection.map
                         (connection -> connection.getClientState().equals(ClientState.AUTHENTICATED))
                 .orElse(false);
+        LOGGER.info("Authentication socket {} is {}", socket.getRemoteSocketAddress(), isAuthenticated);
+        return isAuthenticated;
     }
 
     @Override
@@ -101,14 +108,19 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void handshake(Socket socket, Envelope envelope) {
-        if (envelope.getVersion().equals(ProtocolVersion.current())) {
-            senderService.send(
-                    socket,
-                    Envelope.builder()
-                            .type(MessageType.HELLO_ACK)
-                            .build()
-            );
+        try {
+            if (envelope.getVersion().equals(ProtocolVersion.current())) {
+                senderService.send(
+                        socket,
+                        Envelope.builder()
+                                .type(MessageType.HELLO_ACK)
+                                .build()
+                );
+            }
+        }catch (Exception e){
+            throw new RuntimeException("Hand shake failed :" + e.getMessage());
         }
+
     }
 
     private boolean isPasswordCorrect(AuthPayload authPayload) {

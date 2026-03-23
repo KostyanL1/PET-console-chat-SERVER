@@ -77,6 +77,7 @@ public class ConnectionsManagerImpl implements ConnectionManager {
         connection.setUsername(username);
         connection.setClientState(ClientState.AUTHENTICATED);
         this.activeConnectionByUsernameMap.put(username, connection);
+        LOGGER.info("Username {} is authenticated", username);
     }
 
     @Override
@@ -87,6 +88,7 @@ public class ConnectionsManagerImpl implements ConnectionManager {
         if (username != null) {
             this.activeConnectionByUsernameMap.remove(username);
         }
+        LOGGER.info("Connection {} removed", socket.getRemoteSocketAddress());
     }
 
 
