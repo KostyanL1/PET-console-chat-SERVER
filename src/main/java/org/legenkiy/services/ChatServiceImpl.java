@@ -76,13 +76,16 @@ public class ChatServiceImpl implements ChatService {
                 String firstUser = requestContext.findById(chatAcceptPayload.getRequestId()).getFrom();
                 String secondUser = connectionManager.findConnectionBySocket(clientSocketThatAccepted).getUsername();
                 Socket clientSocketThatSentRequest = connectionManager.findConnectionByUsername(firstUser).getSocket();
+                System.out.println(clientSocketThatSentRequest.getRemoteSocketAddress());
+                System.out.println(clientSocketThatAccepted.getRemoteSocketAddress());
 
                 requestContext.removeById(chatAcceptPayload.getRequestId());
 
                 if (authService.isAuthenticated(clientSocketThatSentRequest)) {
-                    chatsContext.create(firstUser, secondUser);
+                    Chat chat = chatsContext.create(firstUser, secondUser);
 
                     ChatStartedPayload chatStartedPayload = new ChatStartedPayload();
+                    chatStartedPayload.setChatId(chat.getId());
                     chatStartedPayload.setA(firstUser);
                     chatStartedPayload.setB(secondUser);
 
