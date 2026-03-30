@@ -21,10 +21,10 @@ public class SenderServiceImpl implements SenderService {
     private MessageMapper mapper;
     private ConnectionManager connectionManager;
 
-    public SenderServiceImpl (
+    public SenderServiceImpl(
             MessageMapper mapper,
             @Lazy ConnectionManager connectionManager
-    ){
+    ) {
         this.mapper = mapper;
         this.connectionManager = connectionManager;
     }
