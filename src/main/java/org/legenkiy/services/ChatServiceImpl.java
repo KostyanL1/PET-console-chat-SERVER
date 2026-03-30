@@ -52,10 +52,10 @@ public class ChatServiceImpl implements ChatService {
                     envelopeForSend.setType(MessageType.CHAT_INCOMING);
                     envelopeForSend.setPayload(chatIncomingPayload);
                     senderService.send(recipientActiveConnection.getSocket(), envelopeForSend);
-                }else {
+                } else {
                     throw new RuntimeException("Recipient offline");
                 }
-            }else {
+            } else {
                 throw new IllegalArgumentException("Incorrect payload");
             }
         } catch (Exception e) {
@@ -96,10 +96,10 @@ public class ChatServiceImpl implements ChatService {
                     senderService.send(clientSocketThatAccepted, envelopeForBothUsers);
                     senderService.send(clientSocketThatSentRequest, envelopeForBothUsers);
 
-                }else {
+                } else {
                     throw new RuntimeException("Client that sent request offline");
                 }
-            }else {
+            } else {
                 throw new IllegalArgumentException("Incorrect payload");
             }
         } catch (Exception e) {
@@ -121,7 +121,7 @@ public class ChatServiceImpl implements ChatService {
                 envelopeForUserThatSentRequest.setPayload(chatRejectPayload);
 
                 senderService.send(clientSocketThatSentRequest, envelopeForUserThatSentRequest);
-            }else {
+            } else {
                 throw new IllegalArgumentException("Incorrect payload");
             }
 
@@ -147,13 +147,13 @@ public class ChatServiceImpl implements ChatService {
 
                         senderService.send(firstUserSocket, envelopeForBothUsers);
                         senderService.send(secondUserSocket, envelopeForBothUsers);
-                    }else {
+                    } else {
                         throw new RuntimeException("Error in finding recipient socket");
                     }
-                }else {
+                } else {
                     throw new ObjectNotFoundException("Chat not found");
                 }
-            }else {
+            } else {
                 throw new IllegalArgumentException("Incorrect payload");
             }
 
@@ -190,7 +190,7 @@ public class ChatServiceImpl implements ChatService {
 
                     senderService.send(recipientSocket, envelopeForRecipient);
                 }
-            }else {
+            } else {
                 throw new IllegalArgumentException("Incorrect payload");
             }
         } catch (Exception e) {

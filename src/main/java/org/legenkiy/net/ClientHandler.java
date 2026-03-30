@@ -1,7 +1,6 @@
 package org.legenkiy.net;
 
 
-
 import lombok.RequiredArgsConstructor;
 
 import org.apache.logging.log4j.LogManager;
@@ -44,11 +43,11 @@ public class ClientHandler implements Runnable {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
             PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true);
             String message;
-            while ((message = bufferedReader.readLine()) != null){
+            while ((message = bufferedReader.readLine()) != null) {
                 Envelope envelope;
                 try {
-                     envelope = mapper.decode(message, Envelope.class);
-                }catch (Exception e){
+                    envelope = mapper.decode(message, Envelope.class);
+                } catch (Exception e) {
                     LOGGER.error(e.getMessage());
                     continue;
                 }
@@ -57,11 +56,12 @@ public class ClientHandler implements Runnable {
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
         } finally {
-            if (!this.socket.isClosed()){
+            if (!this.socket.isClosed()) {
                 try {
                     this.socket.close();
                     connectionManager.removeConnectionBySocket(this.socket);
-                } catch (IOException ignored) {}
+                } catch (IOException ignored) {
+                }
             }
         }
     }

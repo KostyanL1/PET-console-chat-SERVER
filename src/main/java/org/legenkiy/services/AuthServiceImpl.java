@@ -44,7 +44,7 @@ public class AuthServiceImpl implements AuthService {
                 userDto.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
                 userService.save(userDto);
                 connectionsManager.authenticate(socket, username);
-                AuthPayload authPayloadForUser =  new AuthPayload();
+                AuthPayload authPayloadForUser = new AuthPayload();
                 authPayloadForUser.setUsername(username);
                 senderService.send(socket,
                         Envelope.builder()
@@ -69,7 +69,7 @@ public class AuthServiceImpl implements AuthService {
             String username = authPayload.getUsername();
             if (isRegisteredUsername(username) && isPasswordCorrect(authPayload)) {
                 connectionsManager.authenticate(socket, authPayload.getUsername());
-                AuthPayload authPayloadForUser =  new AuthPayload();
+                AuthPayload authPayloadForUser = new AuthPayload();
                 authPayloadForUser.setUsername(username);
                 senderService.send(socket,
                         Envelope.builder()
@@ -89,7 +89,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public boolean isAuthenticated(Socket socket) {
         Optional<ActiveConnection> activeConnection = Optional.ofNullable(connectionsManager.findConnectionBySocket(socket));
-        boolean isAuthenticated =  activeConnection.map
+        boolean isAuthenticated = activeConnection.map
                         (connection -> connection.getClientState().equals(ClientState.AUTHENTICATED))
                 .orElse(false);
         LOGGER.info("Authentication socket {} is {}", socket.getRemoteSocketAddress(), isAuthenticated);
@@ -117,7 +117,7 @@ public class AuthServiceImpl implements AuthService {
                                 .build()
                 );
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException("Hand shake failed :" + e.getMessage());
         }
 
